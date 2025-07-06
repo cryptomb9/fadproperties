@@ -6,11 +6,12 @@ const supabase = createClient(
 );
 
 // Admin credentials
-const ADMIN_EMAIL = "admin@yourproperty.com";
-const ADMIN_PASSWORD = "admin123";
+const ADMIN_EMAIL = "biggestfad@icloud.com";
+const ADMIN_PASSWORD = "fad123";
 
 let allProperties = [];
 
+// Load listings
 async function loadListings() {
   const { data, error } = await supabase
     .from('properties')
@@ -46,7 +47,6 @@ function renderListings(list) {
   listings.innerHTML = list
     .map((item) => {
       let images = item.images || [];
-
       return `
         <div class="property-card">
           <h3>${item.title || 'Untitled'}</h3>
@@ -67,6 +67,7 @@ function renderListings(list) {
     .join('');
 }
 
+// Search
 const searchInput = document.getElementById('searchInput');
 if (searchInput) {
   searchInput.addEventListener('input', (e) => {
@@ -96,32 +97,26 @@ async function loadPromoPopup() {
   const promo = data[0];
 
   const overlay = document.createElement('div');
-  overlay.style.position = 'fixed';
-  overlay.style.top = '0';
-  overlay.style.left = '0';
-  overlay.style.width = '100%';
-  overlay.style.height = '100%';
-  overlay.style.backgroundColor = 'rgba(0,0,0,0.8)';
-  overlay.style.display = 'flex';
-  overlay.style.justifyContent = 'center';
-  overlay.style.alignItems = 'center';
-  overlay.style.zIndex = '9999';
+  overlay.style = `
+    position: fixed;
+    top:0; left:0;
+    width:100%; height:100%;
+    background:rgba(0,0,0,0.8);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    z-index:9999;
+  `;
 
   overlay.innerHTML = `
     <div style="position: relative; max-width: 90%; max-height: 90%;">
       <img src="${promo.image_url}" alt="Promo" style="max-width:100%; border-radius:8px;">
       <button id="closePromo" style="
-        position: absolute;
-        top: -10px;
-        right: -10px;
-        background: #fff;
-        color: #000;
-        border: none;
-        border-radius: 50%;
-        width: 30px;
-        height: 30px;
-        cursor: pointer;
-        font-size: 16px;
+        position:absolute;
+        top:-10px; right:-10px;
+        background:#fff; color:#000;
+        border:none; border-radius:50%;
+        width:30px; height:30px;
         font-weight:bold;
       ">×</button>
     </div>
@@ -151,8 +146,9 @@ if (loginForm) {
     const errorMessage = document.getElementById('error-message');
 
     if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+      localStorage.setItem('isAdmin', 'true');
       modal.style.display = 'none';
-      window.location.href = 'admin.html';
+      window.location.href = '/admin';
     } else {
       errorMessage.style.display = 'block';
     }

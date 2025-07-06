@@ -1,9 +1,27 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
+// Redirect to home if not logged in
+if (localStorage.getItem('isAdmin') !== 'true') {
+  window.location.href = '/';
+}
+
 const supabase = createClient(
   'https://gxozdkmphuneqglstlyi.supabase.co',
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd4b3pka21waHVuZXFnbHN0bHlpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE0MTU3MDgsImV4cCI6MjA2Njk5MTcwOH0.OmU29wRbQgZlWIjTVNr50W6dA0B3KtryW1dq0_cgRgs'
 );
+
+// Add a logout button if you want
+const logoutBtn = document.getElementById('logoutBtn');
+if (logoutBtn) {
+  logoutBtn.addEventListener('click', () => {
+    localStorage.removeItem('isAdmin');
+    window.location.href = '/';
+  });
+}
+
+// The rest of your admin.js code
+// (loadProperties, promo uploads, etc)
+
 
 // Keep admin logged in
 localStorage.setItem('isAdmin', 'true');
