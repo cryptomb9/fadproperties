@@ -43,7 +43,7 @@ async function loadProperty() {
   } else {
     buyBtn.onclick = () => {
       const msg = encodeURIComponent(`Hello, I'm interested in buying the property: ${data.title}`);
-      window.open(`https://wa.me/2348145324251?text=${msg}`, '_blank');
+      window.open(`https://wa.me/2349072654292?text=${msg}`, '_blank');
     };
   }
 
