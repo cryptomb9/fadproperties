@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Property Details - FAD Properties</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=sans-serif" rel="stylesheet"/>
+</head>
+<body>
+  <header class="header">
+    <nav class="navbar">
+      <div class="logo">
+        <img src="/images/faflogo.png" alt="FAD Properties Logo"/>
+        <a href="/">FAD Properties</a>
+      </div>
+      <input type="checkbox" id="menu-toggle"/>
+      <label for="menu-toggle" id="hamburger-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
+          <path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </label>
+      <ul class="links">
+        <li><a href="/" class="nav-btn">Home</a></li>
+        <li><a href="/about" class="nav-btn">About Us</a></li>
+        <li><a href="/contact" class="nav-btn">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main style="margin-top:100px; padding:20px;">
+    <div class="property-header">
+      <h1 id="title">Loading...</h1>
+      <div id="status-badge"></div>
+      <button id="buy-button" class="buy-btn">
+        🛒 Buy
+      </button>
+    </div>
+
+    <p id="price"></p>
+
+    <div class="swiper-container">
+      <div class="swiper-wrapper" id="swiper-wrapper">
+        <!-- Images will be injected here -->
+      </div>
+      <div class="swiper-pagination"></div>
+      <div class="swiper-button-prev"></div>
+      <div class="swiper-button-next"></div>
+    </div>
+
+    <p id="description" style="margin-top:20px;"></p>
+  </main>
+
+  <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+  <script type="module" src="property.js"></script>
+</body>
+</html>

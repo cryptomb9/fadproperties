@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin - FAD homes</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="header">
+    <nav class="navbar">
+      <div class="logo">
+        <img src="/images/faflogo.png" alt="FAD Properties Logo" />
+        <a href="/">FAD homes </a>
+      </div>
+      <ul class="links">
+        <li><a href="/" class="nav-btn">Home</a></li>
+        <li><a href="/about" class="nav-btn">About Us</a></li>
+        <li><a href="/contact" class="nav-btn">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="admin-section">
+    <h1>Admin Panel</h1>
+
+    <section>
+      <h2>Add Property</h2>
+      <form id="propertyForm">
+        <input type="text" id="title" placeholder="Property Title" required />
+        <textarea id="description" placeholder="Property Description" rows="4" required></textarea>
+        <input type="text" id="price" placeholder="Price" required />
+        <input type="file" id="images" accept="image/*" multiple required />
+        <button type="submit">Add Property</button>
+      </form>
+    </section>
+
+    <section id="propertiesList">
+      <h2>All Properties</h2>
+      <div id="properties-container"></div>
+    </section>
+
+    <section>
+      <h2>Promotions</h2>
+      <form id="promoForm">
+        <input type="file" id="promoImage" accept="image/*" required/>
+        <button type="submit">Upload Promo Image</button>
+      </form>
+      <div id="promo-container"></div>
+    </section>
+  </main>
+
+  <script type="module" src="admin.js"></script>
+</body>
+</html>

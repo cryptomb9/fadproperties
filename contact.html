@@ -1,0 +1,55 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact - FAD homes</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=sans-serif" rel="stylesheet">
+</head>
+<body>
+  <header class="header">
+    <nav class="navbar">
+      <div class="logo">
+        <img src="/images/faflogo.png" alt="FAD Properties Logo">
+        <a href="/">FAD homes</a>
+      </div>
+      <input type="checkbox" id="menu-toggle">
+      <label for="menu-toggle" id="hamburger-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
+          <path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </label>
+      <ul class="links">
+        <li><a href="/" class="nav-btn">Home</a></li>
+        <li><a href="/about" class="nav-btn">About Us</a></li>
+        <li><a href="/contact" class="nav-btn">Contact</a></li>
+        <li><a href="#" class="nav-btn admin-login-btn">Admin</a></li>
+      </ul>
+    </nav>
+  </header>
+<section>
+  <div class="contact">
+    <h1>Contact</h1>
+    <p><a href="https://wa.me/2348145324251" target="_blank">WhatsApp Chat</a></p>
+    <p><a href="mailto:fadilullahhomesandproperty@gmail.com">Email Us</a></p>
+    <p><a href="https://www.instagram.com/_fadhomes?igsh=cHlqb283aGE2dW51" target="_blank">Instagram</a></p>
+  </div>
+
+  </section>
+  <div class="modal" id="admin-login-modal">
+    <div class="modal-content">
+      <span class="close-btn">×</span>
+      <h2>Admin Login</h2>
+      <form id="admin-login-form">
+        <input type="email" placeholder="Email" required>
+        <input type="password" placeholder="Password" required>
+        <button type="submit">Login</button>
+        <p id="error-message" style="display: none;">Invalid email or password</p>
+      </form>
+    </div>
+  </div>
+  <script src="/script.js"></script>
+</body>
+</html>

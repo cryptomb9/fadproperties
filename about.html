@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About Us - FAD homes </title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=sans-serif" rel="stylesheet">
+</head>
+<body>
+  <header class="header">
+    <nav class="navbar">
+      <div class="logo">
+        <img src="/images/faflogo.png" alt="FAD Properties Logo">
+        <a href="/">FAD homes</a>
+      </div>
+      <input type="checkbox" id="menu-toggle">
+      <label for="menu-toggle" id="hamburger-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
+          <path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </label>
+      <ul class="links">
+        <li><a href="/" class="nav-btn">Home</a></li>
+        <li><a href="/about" class="nav-btn">About Us</a></li>
+        <li><a href="/contact" class="nav-btn">Contact</a></li>
+        <li><a href="#" class="nav-btn admin-login-btn">Admin</a></li>
+      </ul>
+    </nav>
+  </header>
+  <section>
+    <div class="registration">
+        <h1>About Us</h1>
+        <p>
+         At Fad Properties, we're passionate about connecting people with their dream homes. With a keen eye for market trends and a commitment to exceptional service, our team helps clients navigate the world of real estate with ease.
+        <p>
+        <h2>Our Mission</h2>
+        <p>
+            To provide personalized, expert guidance and innovative solutions, ensuring our clients achieve their real estate goals.
+        </p>
+        <h3>Our Values</h3>
+        <p>
+              - Integrity: Transparency and honesty in every transaction
+        </p>
+        <p>
+            - Innovation: Staying ahead of market trends and leveraging technology
+        </p>
+        <p>
+            - Customer-centric: Tailoring our services to meet unique client needs
+        </p>        
+        <h4>Your Trusted Partner</h4>
+        <p> Whether buying, selling, or investing, trust Fad Properties to deliver results-driven expertise and unparalleled support.</p>
+        <h5>Our Registration</h5>
+        <p>FAD Properties is a registered business. View our registration document <a href="/docs/registration.pdf" target="_blank">here</a>.</p>
+    </div>
+
+  </section>
+  <div class="modal" id="admin-login-modal">
+    <div class="modal-content">
+      <span class="close-btn">×</span>
+      <h2>Admin Login</h2>
+      <form id="admin-login-form">
+        <input type="email" placeholder="Email" required>
+        <input type="password" placeholder="Password" required>
+        <button type="submit">Login</button>
+        <p id="error-message" style="display: none;">Invalid email or password</p>
+      </form>
+    </div>
+  </div>
+  <script src="/script.js"></script>
+</body>
+</html>
