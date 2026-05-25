@@ -1,55 +1,95 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Contact - FAD homes</title>
+  <title>Contact - FAD Home and Properties</title>
   <link rel="stylesheet" href="style.css">
-  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=sans-serif" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 </head>
 <body>
   <header class="header">
     <nav class="navbar">
       <div class="logo">
-        <img src="/images/faflogo.png" alt="FAD Properties Logo">
-        <a href="/">FAD homes</a>
+        <img src="images/faflogo.png" alt="FAD Home and Properties Logo">
+        <a href="/" class="brand-copy">FAD Home and Properties<span>Homes and investments</span></a>
       </div>
       <input type="checkbox" id="menu-toggle">
-      <label for="menu-toggle" id="hamburger-btn">
-        <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
+      <label for="menu-toggle" id="hamburger-btn" aria-label="Open navigation">
+        <svg xmlns="http://www.w3.org/2000/svg" height="26" viewBox="0 0 24 24" width="26">
           <path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
         </svg>
       </label>
       <ul class="links">
         <li><a href="/" class="nav-btn">Home</a></li>
+        <li><a href="/properties" class="nav-btn">Properties</a></li>
+        <li><a href="/#services" class="nav-btn">Services</a></li>
+        <li><a href="/#work" class="nav-btn">Projects</a></li>
         <li><a href="/about" class="nav-btn">About Us</a></li>
-        <li><a href="/contact" class="nav-btn">Contact</a></li>
+        <li><a href="/contact" class="nav-btn active">Contact</a></li>
         <li><a href="#" class="nav-btn admin-login-btn">Admin</a></li>
       </ul>
     </nav>
   </header>
-<section>
-  <div class="contact">
-    <h1>Contact</h1>
-    <p><a href="https://wa.me/2349072654292" target="_blank">WhatsApp Chat</a></p>
-    <p><a href="mailto:biggestfad@icloud.com">Email Us</a></p>
-    <p><a href="https://www.instagram.com/_fadhomes?igsh=cHlqb283aGE2dW51" target="_blank">Instagram</a></p>
-  </div>
 
+  <section class="page-hero">
+    <div class="page-shell">
+      <div class="page-title">
+        <p class="eyebrow">Start a conversation</p>
+        <h1>Make enquiries, book inspections, close faster.</h1>
+        <p>Reach FAD Home and Properties directly for available homes, purchase questions, rent enquiries, property listings, inspections, and property development conversations.</p>
+      </div>
+    </div>
   </section>
+
+  <main class="page-shell">
+    <div class="contact-grid">
+      <article class="contact-card">
+        <div>
+          <p class="eyebrow">Fastest response</p>
+          <h2>WhatsApp</h2>
+          <p>Chat with the team about a specific property, inspection time, buying process, or building project.</p>
+        </div>
+        <a href="https://wa.me/2349072654292" target="_blank">Open WhatsApp</a>
+      </article>
+      <article class="contact-card">
+        <div>
+          <p class="eyebrow">Formal enquiries</p>
+          <h2>Email</h2>
+          <p>Send property requirements, documents, development briefs, or partnership messages.</p>
+        </div>
+        <a href="mailto:biggestfad@icloud.com">Email Us</a>
+      </article>
+      <article class="contact-card">
+        <div>
+          <p class="eyebrow">Social updates</p>
+          <h2>Instagram</h2>
+          <p>Follow current listings, promotions, tours, and property updates.</p>
+        </div>
+        <a href="https://www.instagram.com/_fadhomes?igsh=cHlqb283aGE2dW51" target="_blank">View Instagram</a>
+      </article>
+    </div>
+  </main>
+
   <div class="modal" id="admin-login-modal">
     <div class="modal-content">
-      <span class="close-btn">×</span>
+      <span class="close-btn">&times;</span>
       <h2>Admin Login</h2>
       <form id="admin-login-form">
         <input type="email" placeholder="Email" required>
         <input type="password" placeholder="Password" required>
         <button type="submit">Login</button>
-        <p id="error-message" style="display: none;">Invalid email or password</p>
+        <p id="error-message" style="display:none;">Invalid email or password</p>
       </form>
     </div>
   </div>
-  <script src="/script.js"></script>
+
+  <footer class="site-footer">
+    <div class="footer-shell">
+      <strong>FAD Home and Properties</strong>
+      <span>Property sales, rentals, and advisory.</span>
+    </div>
+  </footer>
+  <script type="module" src="script.js"></script>
 </body>
 </html>

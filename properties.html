@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Properties - FAD Home and Properties</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+  <script type="module" src="script.js" defer></script>
+</head>
+<body data-page="properties">
+  <header class="header">
+    <nav class="navbar">
+      <div class="logo">
+        <img src="images/faflogo.png" alt="FAD Home and Properties Logo" />
+        <a href="/" class="brand-copy">FAD Home and Properties<span>Homes and investments</span></a>
+      </div>
+      <input type="checkbox" id="menu-toggle" />
+      <label for="menu-toggle" id="hamburger-btn" aria-label="Open navigation">
+        <svg xmlns="http://www.w3.org/2000/svg" height="26" viewBox="0 0 24 24" width="26">
+          <path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </label>
+      <ul class="links">
+        <li><a href="/" class="nav-btn">Home</a></li>
+        <li><a href="/properties" class="nav-btn active">Properties</a></li>
+        <li><a href="/#services" class="nav-btn">Services</a></li>
+        <li><a href="/#work" class="nav-btn">Projects</a></li>
+        <li><a href="/about" class="nav-btn">About Us</a></li>
+        <li><a href="/contact" class="nav-btn">Contact</a></li>
+        <li><a href="#" class="nav-btn admin-login-btn">Admin</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <section class="page-hero properties-hero">
+    <div class="page-shell">
+      <div class="page-title">
+        <p class="eyebrow">Property portfolio</p>
+        <h1>Browse available homes, land, and investment spaces.</h1>
+        <p>Search by location, category, price, bedroom count, description, or any keyword that matters to you.</p>
+      </div>
+    </div>
+  </section>
+
+  <main class="search-and-listings">
+    <div class="section-shell">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">All properties</p>
+          <h2>Find the right space</h2>
+        </div>
+        <p>Every active listing appears here, with sold properties moved lower after available options.</p>
+      </div>
+      <div class="search-panel">
+        <input type="text" id="searchInput" placeholder="Search by location, duplex, land, 4 bed, Mowe, Lekki..." class="search-bar" />
+        <div class="search-meta" id="listingCount">Loading</div>
+      </div>
+      <div id="listings"></div>
+    </div>
+  </main>
+
+  <div class="modal" id="admin-login-modal">
+    <div class="modal-content">
+      <span class="close-btn">&times;</span>
+      <h2>Admin Login</h2>
+      <form id="admin-login-form">
+        <input type="email" placeholder="Email" required />
+        <input type="password" placeholder="Password" required />
+        <button type="submit">Login</button>
+        <p id="error-message" style="display:none;">Invalid email or password</p>
+      </form>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-shell">
+      <div>
+        <strong>FAD Home and Properties</strong>
+        <span>Property sales, rentals, development, and advisory.</span>
+      </div>
+      <div class="footer-links">
+        <a href="/properties">Properties</a>
+        <a href="/#services">Services</a>
+        <a href="/about">Company</a>
+        <a href="/contact">Contact</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
+

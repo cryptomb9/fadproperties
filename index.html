@@ -3,26 +3,29 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>FAD homes</title>
+  <title>FAD Home and Properties</title>
   <link rel="stylesheet" href="style.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=sans-serif" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
   <script type="module" src="script.js" defer></script>
 </head>
 <body>
   <header class="header">
     <nav class="navbar">
       <div class="logo">
-        <img src="/images/faflogo.png" alt="FAD Properties Logo" />
-        <a href="/"> FAD homes </a>
+        <img src="images/faflogo.png" alt="FAD Home and Properties Logo" />
+        <a href="/" class="brand-copy">FAD Home and Properties<span>Homes and investments</span></a>
       </div>
       <input type="checkbox" id="menu-toggle" />
-      <label for="menu-toggle" id="hamburger-btn">
-        <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
+      <label for="menu-toggle" id="hamburger-btn" aria-label="Open navigation">
+        <svg xmlns="http://www.w3.org/2000/svg" height="26" viewBox="0 0 24 24" width="26">
           <path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
         </svg>
       </label>
       <ul class="links">
-        <li><a href="/" class="nav-btn">Home</a></li>
+        <li><a href="/" class="nav-btn active">Home</a></li>
+        <li><a href="/properties" class="nav-btn">Properties</a></li>
+        <li><a href="#services" class="nav-btn">Services</a></li>
+        <li><a href="#work" class="nav-btn">Projects</a></li>
         <li><a href="/about" class="nav-btn">About Us</a></li>
         <li><a href="/contact" class="nav-btn">Contact</a></li>
         <li><a href="#" class="nav-btn admin-login-btn">Admin</a></li>
@@ -31,21 +34,129 @@
   </header>
 
   <section class="hero-section">
-    <div class="hero-content">
-      <h1>Welcome to FAD Properties</h1>
-      <p>Discover your dream home with us.</p>
-      <a href="#listings" class="cta-btn">Explore Properties</a>
+    <div class="hero-shell">
+      <div class="hero-content">
+        <h1>Find a home that feels properly handled.</h1>
+        <p>FAD Home and Properties helps tenants, buyers, investors, and landowners discover verified homes, build quality projects, book inspections, and speak directly with a real estate team that understands the market.</p>
+        <div class="hero-actions">
+          <a href="/properties" class="cta-btn">Explore Properties</a>
+          <a href="https://wa.me/2349072654292" target="_blank" class="secondary-btn">Make Enquiry</a>
+        </div>
+        <div class="hero-stats">
+          <div class="hero-stat"><strong>Verified</strong><span>property listings</span></div>
+          <div class="hero-stat"><strong>Direct</strong><span>WhatsApp enquiries</span></div>
+          <div class="hero-stat"><strong>Build</strong><span>development support</span></div>
+        </div>
+      </div>
+      <aside class="hero-finder">
+        <p class="eyebrow">Quick property brief</p>
+        <h2>Tell us what you need.</h2>
+        <div class="finder-grid">
+          <a href="/properties">Buy a property</a>
+          <a href="/properties">Rent a home</a>
+          <a href="#services">Build a project</a>
+          <a href="/contact">Book inspection</a>
+        </div>
+        <a class="finder-whatsapp" href="https://wa.me/2349072654292" target="_blank">Speak with FAD on WhatsApp</a>
+      </aside>
     </div>
   </section>
 
   <section class="search-and-listings">
-    <input type="text" id="searchInput" placeholder="Search properties..." class="search-bar" />
-    <div id="listings"></div>
+    <div class="section-shell">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Available portfolio</p>
+          <h2>Featured spaces</h2>
+        </div>
+        <p>Search by title, location details, or description, then open a listing to enquire or begin purchase conversations.</p>
+      </div>
+      <div class="search-panel">
+        <input type="text" id="searchInput" placeholder="Search apartments, duplexes, land, shortlets..." class="search-bar" />
+        <div class="search-meta" id="listingCount">Loading</div>
+      </div>
+      <div id="listings"></div>
+    </div>
+  </section>
+
+  <section class="section-band">
+    <div class="section-shell">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">How we work</p>
+          <h2>Clear process. Premium service.</h2>
+        </div>
+      </div>
+      <div class="trust-grid">
+        <div class="trust-item">
+          <h3>Discover</h3>
+          <p>Browse current listings with clean imagery, pricing, availability, and useful details.</p>
+        </div>
+        <div class="trust-item">
+          <h3>Inspect</h3>
+          <p>Use WhatsApp or contact links to schedule inspections and ask direct questions.</p>
+        </div>
+        <div class="trust-item">
+          <h3>Close</h3>
+          <p>Move from interest to purchase, rent, or lease with a focused property team.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="work-showcase" id="work">
+    <div class="section-shell showcase-layout showcase-only">
+      <div class="work-track" id="workShowcaseTrack"></div>
+    </div>
+  </section>
+
+  <section class="section-band services-band" id="services">
+    <div class="section-shell">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Property services</p>
+          <h2>From search to structure.</h2>
+        </div>
+        <p>FAD Home and Properties is not only a listing platform. The team also supports clients who want to build, sell, rent, or develop property with a more professional process.</p>
+      </div>
+      <div class="service-grid">
+        <article class="service-card">
+          <span>01</span>
+          <h3>Sales and Rentals</h3>
+          <p>Verified homes, land, apartments, and investment listings presented with clear enquiry paths.</p>
+        </article>
+        <article class="service-card">
+          <span>02</span>
+          <h3>Property Development</h3>
+          <p>Support for clients who want to build residential projects, manage site direction, and bring property ideas to life.</p>
+        </article>
+        <article class="service-card">
+          <span>03</span>
+          <h3>Inspection and Advisory</h3>
+          <p>Direct guidance for inspections, location checks, buyer questions, and next-step decisions.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section-band quick-actions-band">
+    <div class="section-shell">
+      <div class="quick-actions">
+        <div>
+          <p class="eyebrow">Client services</p>
+          <h2>Move faster with the right desk.</h2>
+        </div>
+        <a href="/properties">View Properties</a>
+        <a href="/contact">Request Inspection</a>
+        <a href="/contact">List Your Property</a>
+        <a href="/contact">Build With FAD</a>
+      </div>
+    </div>
   </section>
 
   <div class="modal" id="admin-login-modal">
     <div class="modal-content">
-      <span class="close-btn">×</span>
+      <span class="close-btn">&times;</span>
       <h2>Admin Login</h2>
       <form id="admin-login-form">
         <input type="email" placeholder="Email" required />
@@ -55,5 +166,21 @@
       </form>
     </div>
   </div>
+
+  <footer class="site-footer">
+    <div class="footer-shell">
+      <div>
+        <strong>FAD Home and Properties</strong>
+        <span>Property sales, rentals, development, and advisory.</span>
+      </div>
+      <div class="footer-links">
+        <a href="/properties">Properties</a>
+        <a href="#services">Services</a>
+        <a href="/about">Company</a>
+        <a href="/contact">Contact</a>
+      </div>
+    </div>
+  </footer>
 </body>
 </html>
+

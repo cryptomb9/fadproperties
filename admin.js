@@ -1,99 +1,137 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+import { SUPABASE_ANON_KEY, SUPABASE_URL } from './supabase-config.js';
 
-// Redirect to home if not logged in
-if (localStorage.getItem('isAdmin') !== 'true') {
-  window.location.href = '/';
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const propertyForm = document.getElementById('propertyForm');
+const promoForm = document.getElementById('promoForm');
+const logoutBtn = document.getElementById('logoutBtn');
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
 }
 
-const supabase = createClient(
-  'https://gxozdkmphuneqglstlyi.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd4b3pka21waHVuZXFnbHN0bHlpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE0MTU3MDgsImV4cCI6MjA2Njk5MTcwOH0.OmU29wRbQgZlWIjTVNr50W6dA0B3KtryW1dq0_cgRgs'
-);
-
-// Add a logout button if you want
-const logoutBtn = document.getElementById('logoutBtn');
 if (logoutBtn) {
-  logoutBtn.addEventListener('click', () => {
-    localStorage.removeItem('isAdmin');
+  logoutBtn.addEventListener('click', async () => {
+    await supabase.auth.signOut();
     window.location.href = '/';
   });
 }
 
-// The rest of your admin.js code
-// (loadProperties, promo uploads, etc)
+async function requireAdminSession() {
+  const { data: { session }, error } = await supabase.auth.getSession();
+  if (error || !session) {
+    window.location.href = '/';
+    return false;
+  }
 
+  const { data, error: adminError } = await supabase
+    .from('admins')
+    .select('user_id')
+    .eq('user_id', session.user.id)
+    .single();
 
-// Keep admin logged in
-localStorage.setItem('isAdmin', 'true');
+  if (adminError || !data) {
+    await supabase.auth.signOut();
+    window.location.href = '/';
+    return false;
+  }
 
-const propertyForm = document.getElementById('propertyForm');
-const promoForm = document.getElementById('promoForm');
+  return true;
+}
 
 propertyForm.addEventListener('submit', async (e) => {
   e.preventDefault();
   const submitBtn = propertyForm.querySelector('button[type="submit"]');
   submitBtn.disabled = true;
-  submitBtn.textContent = 'Uploading...';
+  submitBtn.textContent = 'Publishing...';
 
-  const title = document.getElementById('title').value;
-  const description = document.getElementById('description').value;
-  const price = document.getElementById('price').value;
-  const files = document.getElementById('images').files;
+  const title = document.getElementById('title').value.trim();
+  const location = document.getElementById('location').value.trim();
+  const category = document.getElementById('category').value.trim();
+  const bedrooms = document.getElementById('bedrooms').value;
+  const bathrooms = document.getElementById('bathrooms').value;
+  const description = document.getElementById('description').value.trim();
+  const price = document.getElementById('price').value.trim();
+  const files = document.getElementById('media').files;
 
-  if (!title || !description || !price || files.length === 0) {
+  if (!title || !location || !description || !price || files.length === 0) {
     submitBtn.disabled = false;
-    submitBtn.textContent = 'Add Property';
-    return alert('Fill all fields and select at least one image.');
+    submitBtn.textContent = 'Publish Property';
+    alert('Fill all fields and select at least one image.');
+    return;
   }
 
+  const media = [];
   const imageUrls = [];
-  for (let file of files) {
+  for (const file of files) {
+    const safeName = file.name.replace(/[^a-z0-9.\-_]/gi, '-');
+    const isVideo = file.type.startsWith('video/');
     const { data, error } = await supabase.storage
       .from('property-images')
-      .upload(`public/${Date.now()}_${file.name}`, file);
+      .upload(`public/${Date.now()}_${safeName}`, file);
 
     if (error) {
       console.error(error);
       submitBtn.disabled = false;
-      submitBtn.textContent = 'Add Property';
-      return alert('Image upload failed: ' + error.message);
+      submitBtn.textContent = 'Publish Property';
+      alert('Image upload failed: ' + error.message);
+      return;
     }
 
-    const { data: publicData, error: urlError } = supabase
+    const { data: publicData } = supabase
       .storage
       .from('property-images')
       .getPublicUrl(data.path);
 
-    if (urlError || !publicData || !publicData.publicUrl) {
-      console.error('Public URL error:', urlError);
+    if (!publicData?.publicUrl) {
       submitBtn.disabled = false;
-      submitBtn.textContent = 'Add Property';
-      return alert('Could not get public URL.');
+      submitBtn.textContent = 'Publish Property';
+      alert('Could not get public URL.');
+      return;
     }
 
-    const publicUrl = publicData.publicUrl;
-    imageUrls.push(publicUrl);
+    media.push({
+      url: publicData.publicUrl,
+      type: isVideo ? 'video' : 'image',
+    });
+    if (!isVideo) imageUrls.push(publicData.publicUrl);
   }
 
   const { error: insertError } = await supabase
     .from('properties')
-    .insert([{ title, description, price, images: imageUrls, status: 'Available' }]);
+    .insert([{
+      title,
+      location,
+      category,
+      bedrooms: bedrooms ? Number(bedrooms) : null,
+      bathrooms: bathrooms ? Number(bathrooms) : null,
+      description,
+      price,
+      images: imageUrls,
+      media,
+      status: 'Available'
+    }]);
 
   if (insertError) {
     console.error(insertError);
     submitBtn.disabled = false;
-    submitBtn.textContent = 'Add Property';
-    return alert('Failed to save property: ' + insertError.message);
+    submitBtn.textContent = 'Publish Property';
+    alert('Failed to save property: ' + insertError.message);
+    return;
   }
 
-  alert('Property saved successfully!');
   propertyForm.reset();
   submitBtn.disabled = false;
-  submitBtn.textContent = 'Add Property';
+  submitBtn.textContent = 'Publish Property';
   loadProperties();
 });
 
-// Load properties
 async function loadProperties() {
   const { data, error } = await supabase
     .from('properties')
@@ -107,34 +145,42 @@ async function loadProperties() {
     return;
   }
 
+  const totalEl = document.getElementById('totalProperties');
+  const availableEl = document.getElementById('availableProperties');
+  const soldEl = document.getElementById('soldProperties');
+  if (totalEl && availableEl && soldEl) {
+    totalEl.textContent = String(data?.length || 0);
+    availableEl.textContent = String((data || []).filter((item) => item.status !== 'Sold').length);
+    soldEl.textContent = String((data || []).filter((item) => item.status === 'Sold').length);
+  }
+
   if (!data || data.length === 0) {
     container.innerHTML = '<p>No properties yet.</p>';
     return;
   }
 
   container.innerHTML = data.map((item) => `
-    <div class="admin-property-card">
-      <h3>${item.title}</h3>
-      <p>${(item.description || '').replace(/\n/g, '<br>')}</p>
-      <p>Status: <strong>${item.status}</strong></p>
-      <button class="toggle-status-btn" data-id="${item.id}" data-status="${item.status}">
-        Mark as ${item.status === 'Sold' ? 'Available' : 'Sold'}
-      </button>
-      <button class="delete-property-btn" data-id="${item.id}">Delete</button>
-    </div>
+    <article class="admin-property-card">
+      <h3>${escapeHtml(item.title)}</h3>
+      <p>${escapeHtml(item.location || 'Location not set')}</p>
+      <p>${escapeHtml(item.description || '').slice(0, 170)}${(item.description || '').length > 170 ? '...' : ''}</p>
+      <p>Status: <strong>${escapeHtml(item.status || 'Available')}</strong></p>
+      <div class="admin-actions">
+        <button class="toggle-status-btn" data-id="${item.id}" data-status="${escapeHtml(item.status || 'Available')}">
+          Mark as ${item.status === 'Sold' ? 'Available' : 'Sold'}
+        </button>
+        <button class="delete-property-btn" data-id="${item.id}">Delete</button>
+      </div>
+    </article>
   `).join('');
 }
 
-// Event delegation for property actions
 document.getElementById('properties-container').addEventListener('click', async (e) => {
   if (e.target.classList.contains('toggle-status-btn')) {
-    const id = e.target.dataset.id;
-    const currentStatus = e.target.dataset.status;
-    await toggleStatus(id, currentStatus);
+    await toggleStatus(e.target.dataset.id, e.target.dataset.status);
   }
   if (e.target.classList.contains('delete-property-btn')) {
-    const id = e.target.dataset.id;
-    await deleteProperty(id);
+    await deleteProperty(e.target.dataset.id);
   }
 });
 
@@ -147,7 +193,8 @@ async function toggleStatus(id, currentStatus) {
 
   if (error) {
     console.error(error);
-    return alert('Failed to update status.');
+    alert('Failed to update status.');
+    return;
   }
   loadProperties();
 }
@@ -161,12 +208,12 @@ async function deleteProperty(id) {
 
   if (error) {
     console.error(error);
-    return alert('Failed to delete.');
+    alert('Failed to delete.');
+    return;
   }
   loadProperties();
 }
 
-// Promo upload
 promoForm.addEventListener('submit', async (e) => {
   e.preventDefault();
   const submitBtn = promoForm.querySelector('button[type="submit"]');
@@ -177,53 +224,53 @@ promoForm.addEventListener('submit', async (e) => {
   if (!file) {
     submitBtn.disabled = false;
     submitBtn.textContent = 'Upload Promo';
-    return alert('Select an image.');
+    alert('Select an image.');
+    return;
   }
 
+  const safeName = file.name.replace(/[^a-z0-9.\-_]/gi, '-');
   const { data, error } = await supabase.storage
     .from('promo-images')
-    .upload(`public/${Date.now()}_${file.name}`, file);
+    .upload(`public/${Date.now()}_${safeName}`, file);
 
   if (error) {
     console.error('Upload error:', error);
     submitBtn.disabled = false;
     submitBtn.textContent = 'Upload Promo';
-    return alert('Upload failed: ' + error.message);
+    alert('Upload failed: ' + error.message);
+    return;
   }
 
-  const { data: publicData, error: urlError } = supabase
+  const { data: publicData } = supabase
     .storage
     .from('promo-images')
     .getPublicUrl(data.path);
 
-  if (urlError || !publicData || !publicData.publicUrl) {
-    console.error('Public URL error:', urlError);
+  if (!publicData?.publicUrl) {
     submitBtn.disabled = false;
     submitBtn.textContent = 'Upload Promo';
-    return alert('Could not get public URL.');
+    alert('Could not get public URL.');
+    return;
   }
-
-  const publicUrl = publicData.publicUrl;
 
   const { error: insertError } = await supabase
     .from('promos')
-    .insert([{ image_url: publicUrl }]);
+    .insert([{ image_url: publicData.publicUrl }]);
 
   if (insertError) {
     console.error('DB insert error:', insertError);
     submitBtn.disabled = false;
     submitBtn.textContent = 'Upload Promo';
-    return alert('DB insert failed: ' + insertError.message);
+    alert('DB insert failed: ' + insertError.message);
+    return;
   }
 
-  alert('Promo uploaded!');
   promoForm.reset();
   submitBtn.disabled = false;
   submitBtn.textContent = 'Upload Promo';
   loadPromos();
 });
 
-// Load promos
 async function loadPromos() {
   const { data, error } = await supabase
     .from('promos')
@@ -244,17 +291,15 @@ async function loadPromos() {
 
   container.innerHTML = data.map((item) => `
     <div class="promo-card">
-      <img src="${item.image_url}" alt="Promo" />
-      <button class="delete-promo-btn" data-id="${item.id}">Delete</button>
+      <img src="${escapeHtml(item.image_url)}" alt="Promo" />
+      <button class="delete-promo-btn" data-id="${item.id}">Delete Promo</button>
     </div>
   `).join('');
 }
 
-// Event delegation for promos
 document.getElementById('promo-container').addEventListener('click', async (e) => {
   if (e.target.classList.contains('delete-promo-btn')) {
-    const id = e.target.dataset.id;
-    await deletePromo(id);
+    await deletePromo(e.target.dataset.id);
   }
 });
 
@@ -267,11 +312,13 @@ async function deletePromo(id) {
 
   if (error) {
     console.error(error);
-    return alert('Failed to delete.');
+    alert('Failed to delete.');
+    return;
   }
   loadPromos();
 }
 
-// Initial load
-loadProperties();
-loadPromos();
+if (await requireAdminSession()) {
+  loadProperties();
+  loadPromos();
+}

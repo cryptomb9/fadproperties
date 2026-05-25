@@ -3,53 +3,81 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Admin - FAD homes</title>
+  <title>Admin - FAD Home and Properties</title>
   <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
 </head>
-<body>
+<body class="admin-body">
   <header class="header">
     <nav class="navbar">
       <div class="logo">
-        <img src="/images/faflogo.png" alt="FAD Properties Logo" />
-        <a href="/">FAD homes </a>
+        <img src="images/faflogo.png" alt="FAD Home and Properties Logo" />
+        <a href="/" class="brand-copy">FAD Home and Properties<span>Admin studio</span></a>
       </div>
       <ul class="links">
         <li><a href="/" class="nav-btn">Home</a></li>
+        <li><a href="/properties" class="nav-btn">Properties</a></li>
+        <li><a href="/#services" class="nav-btn">Services</a></li>
+        <li><a href="/#work" class="nav-btn">Projects</a></li>
         <li><a href="/about" class="nav-btn">About Us</a></li>
         <li><a href="/contact" class="nav-btn">Contact</a></li>
+        <li><button id="logoutBtn" class="nav-btn nav-strong" type="button">Logout</button></li>
       </ul>
     </nav>
   </header>
 
-  <main class="admin-section">
-    <h1>Admin Panel</h1>
+  <main class="admin-shell">
+    <div class="admin-topbar">
+      <div>
+        <p class="eyebrow">Company operations</p>
+        <h1>Admin studio</h1>
+      </div>
+      <a href="/" class="secondary-btn" style="color:#111;border-color:var(--line);background:#fff;">View site</a>
+    </div>
 
-    <section>
-      <h2>Add Property</h2>
-      <form id="propertyForm">
-        <input type="text" id="title" placeholder="Property Title" required />
-        <textarea id="description" placeholder="Property Description" rows="4" required></textarea>
-        <input type="text" id="price" placeholder="Price" required />
-        <input type="file" id="images" accept="image/*" multiple required />
-        <button type="submit">Add Property</button>
-      </form>
+    <section class="admin-stats" aria-label="Property summary">
+      <div class="admin-stat"><strong id="totalProperties">0</strong><span>Total properties</span></div>
+      <div class="admin-stat"><strong id="availableProperties">0</strong><span>Available</span></div>
+      <div class="admin-stat"><strong id="soldProperties">0</strong><span>Sold</span></div>
     </section>
 
-    <section id="propertiesList">
-      <h2>All Properties</h2>
-      <div id="properties-container"></div>
-    </section>
+    <div class="admin-grid">
+      <div>
+        <section class="admin-panel">
+          <h2>Post a Property</h2>
+          <form id="propertyForm">
+            <input type="text" id="title" placeholder="Property title" required />
+            <input type="text" id="location" placeholder="Location, e.g. Magodo, Ikeja, Mowe" required />
+            <input type="text" id="category" placeholder="Category, e.g. Duplex, Apartment, Land, Shortlet" />
+            <div class="form-row">
+              <input type="number" id="bedrooms" placeholder="Bedrooms" min="0" />
+              <input type="number" id="bathrooms" placeholder="Bathrooms" min="0" />
+            </div>
+            <textarea id="description" placeholder="Description, location, rooms, inspection notes" rows="4" required></textarea>
+            <input type="text" id="price" placeholder="Price, e.g. 45,000,000" required />
+            <input type="file" id="media" accept="image/*,video/*" multiple required />
+            <button type="submit">Publish Property</button>
+          </form>
+        </section>
 
-    <section>
-      <h2>Promotions</h2>
-      <form id="promoForm">
-        <input type="file" id="promoImage" accept="image/*" required/>
-        <button type="submit">Upload Promo Image</button>
-      </form>
-      <div id="promo-container"></div>
-    </section>
+        <section class="admin-panel" style="margin-top:22px;">
+          <h2>Promotion Popup</h2>
+          <form id="promoForm">
+            <input type="file" id="promoImage" accept="image/*" required/>
+            <button type="submit">Upload Promo</button>
+          </form>
+          <div id="promo-container"></div>
+        </section>
+      </div>
+
+      <section class="admin-panel" id="propertiesList">
+        <h2>Property Inventory</h2>
+        <div id="properties-container" class="properties-list"></div>
+      </section>
+    </div>
   </main>
 
   <script type="module" src="admin.js"></script>
 </body>
 </html>
+

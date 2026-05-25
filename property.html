@@ -3,54 +3,67 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Property Details - FAD Properties</title>
+  <title>Property Details - FAD Home and Properties</title>
   <link rel="stylesheet" href="style.css"/>
   <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css"/>
-  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=sans-serif" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet"/>
 </head>
 <body>
   <header class="header">
     <nav class="navbar">
       <div class="logo">
-        <img src="/images/faflogo.png" alt="FAD Properties Logo"/>
-        <a href="/">FAD Properties</a>
+        <img src="images/faflogo.png" alt="FAD Home and Properties Logo"/>
+        <a href="/" class="brand-copy">FAD Home and Properties<span>Homes and investments</span></a>
       </div>
       <input type="checkbox" id="menu-toggle"/>
-      <label for="menu-toggle" id="hamburger-btn">
-        <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
+      <label for="menu-toggle" id="hamburger-btn" aria-label="Open navigation">
+        <svg xmlns="http://www.w3.org/2000/svg" height="26" viewBox="0 0 24 24" width="26">
           <path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
         </svg>
       </label>
       <ul class="links">
         <li><a href="/" class="nav-btn">Home</a></li>
+        <li><a href="/properties" class="nav-btn">Properties</a></li>
+        <li><a href="/#services" class="nav-btn">Services</a></li>
+        <li><a href="/#work" class="nav-btn">Projects</a></li>
         <li><a href="/about" class="nav-btn">About Us</a></li>
         <li><a href="/contact" class="nav-btn">Contact</a></li>
       </ul>
     </nav>
   </header>
 
-  <main style="margin-top:100px; padding:20px;">
-    <div class="property-header">
-      <h1 id="title">Loading...</h1>
-      <div id="status-badge"></div>
-      <button id="buy-button" class="buy-btn">
-        🛒 Buy
-      </button>
+  <main class="property-main">
+    <div class="page-shell property-layout">
+      <section class="gallery-panel">
+        <div class="swiper-container">
+          <div class="swiper-wrapper" id="swiper-wrapper">
+            <div class="swiper-slide"><img src="https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=1400&q=85" alt="Property preview"/></div>
+          </div>
+          <div class="swiper-pagination"></div>
+          <div class="swiper-button-prev"></div>
+          <div class="swiper-button-next"></div>
+        </div>
+      </section>
+
+      <aside class="detail-card">
+        <div class="property-header">
+          <h1 id="title">Loading...</h1>
+          <div id="status-badge"></div>
+        </div>
+        <p id="price" class="detail-price"></p>
+        <div id="property-meta" class="detail-meta"></div>
+        <p id="description" class="detail-description"></p>
+        <button id="buy-button" class="buy-btn">Make Enquiry</button>
+      </aside>
     </div>
-
-    <p id="price"></p>
-
-    <div class="swiper-container">
-      <div class="swiper-wrapper" id="swiper-wrapper">
-        <!-- Images will be injected here -->
-      </div>
-      <div class="swiper-pagination"></div>
-      <div class="swiper-button-prev"></div>
-      <div class="swiper-button-next"></div>
-    </div>
-
-    <p id="description" style="margin-top:20px;"></p>
   </main>
+
+  <footer class="site-footer">
+    <div class="footer-shell">
+      <strong>FAD Home and Properties</strong>
+      <span>Property sales, rentals, and advisory.</span>
+    </div>
+  </footer>
 
   <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
   <script type="module" src="property.js"></script>
