@@ -27,7 +27,7 @@ function formatPrice(value) {
 
 function shortText(value, limit = 118) {
   const text = String(value || "").trim();
-  if (text.length <= limit) return text || "Speak with FAD HOMES AND PROPERTIES for full details, inspection notes, and availability.";
+  if (text.length <= limit) return text || "Speak with FAD HOMES AND PROPERTY for full details, inspection notes, and availability.";
   return `${text.slice(0, limit).trim()}...`;
 }
 
@@ -54,14 +54,14 @@ function renderShowcase(properties = []) {
     .map((item) => ({
       image: getPropertyMedia(item).find((media) => media.type === "image").url,
       title: item.title || "FAD project",
-      text: item.description || "Listed and managed by FAD HOMES AND PROPERTIES.",
+      text: item.description || "Listed and managed by FAD HOMES AND PROPERTY.",
     }));
 
   const fallbackSlides = [
     {
       image: "images/fad-showcase-house.jpeg",
       title: "Modern Nigerian residence",
-      text: "A finished contemporary home built for the kind of lifestyle and quality FAD HOMES AND PROPERTIES represents.",
+      text: "A finished contemporary home built for the kind of lifestyle and quality FAD HOMES AND PROPERTY represents.",
     },
     {
       image: "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=1200&q=85",
@@ -207,7 +207,7 @@ async function loadPromoPopup() {
   overlay.innerHTML = `
     <div class="modal-content" style="padding:10px;max-width:720px;">
       <span class="close-btn" id="closePromo">&times;</span>
-      <img src="${escapeHtml(promo.image_url)}" alt="FAD HOMES AND PROPERTIES promotion" style="width:100%;border-radius:6px;">
+      <img src="${escapeHtml(promo.image_url)}" alt="FAD HOMES AND PROPERTY promotion" style="width:100%;border-radius:6px;">
     </div>
   `;
 

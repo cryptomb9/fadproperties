@@ -1,4 +1,4 @@
-# FAD HOMES AND PROPERTIES Database Setup
+# FAD HOMES AND PROPERTY Database Setup
 
 This site uses Supabase for properties, promo images, and admin uploads.
 
@@ -53,7 +53,7 @@ Then open `SQL Editor` and run this, replacing the values:
 
 ```sql
 insert into public.admins (user_id, email)
-values ('PASTE_USER_UID_HERE', 'fadilullahhomesandproperty@gmail.com')
+values ('PASTE_USER_UID_HERE', 'info@fadhomes.com')
 on conflict (user_id) do update set email = excluded.email;
 ```
 
