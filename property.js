@@ -39,12 +39,12 @@ async function loadProperty() {
   if (error || !data) {
     console.error(error);
     document.getElementById('title').textContent = "Property Not Found";
-    document.getElementById('description').textContent = "This property could not be loaded. Please contact FAD Home and Properties for help.";
+    document.getElementById('description').textContent = "This property could not be loaded. Please contact FAD HOME AND PROPERTIES for help.";
     return;
   }
 
   const title = data.title || 'Untitled Property';
-  document.title = `${title} - FAD Home and Properties`;
+  document.title = `${title} - FAD HOME AND PROPERTIES`;
   document.getElementById('title').textContent = title;
   document.getElementById('price').textContent = formatPrice(data.price);
   const facts = [
@@ -54,7 +54,7 @@ async function loadProperty() {
     data.bathrooms ? `${data.bathrooms} bath` : "",
   ].filter(Boolean);
   document.getElementById('property-meta').textContent = facts.join(" • ");
-  document.getElementById('description').textContent = data.description || 'Speak with FAD Home and Properties for full details, inspection notes, and availability.';
+  document.getElementById('description').textContent = data.description || 'Speak with FAD HOME AND PROPERTIES for full details, inspection notes, and availability.';
 
   const badge = document.getElementById('status-badge');
   badge.textContent = data.status === 'Sold' ? 'Sold' : 'Available';
@@ -66,7 +66,7 @@ async function loadProperty() {
     buyBtn.disabled = true;
   } else {
     buyBtn.onclick = () => {
-      const msg = encodeURIComponent(`Hello FAD Home and Properties, I am interested in this property: ${title}`);
+      const msg = encodeURIComponent(`Hello FAD HOME AND PROPERTIES, I am interested in this property: ${title}`);
       window.open(`https://wa.me/2349072654292?text=${msg}`, '_blank');
     };
   }
@@ -104,3 +104,4 @@ function getPropertyMedia(item) {
 }
 
 loadProperty();
+
