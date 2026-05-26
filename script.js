@@ -4,7 +4,10 @@ import { SUPABASE_ANON_KEY, SUPABASE_URL } from './supabase-config.js';
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=900&q=85";
-const IS_PROPERTIES_PAGE = document.body.dataset.page === "properties";
+const FALLBACK_LAND_IMAGE = "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=900&q=85";
+const PAGE_TYPE = document.body.dataset.page || "home";
+const IS_PROPERTIES_PAGE = PAGE_TYPE === "properties";
+const IS_LANDS_PAGE = PAGE_TYPE === "lands";
 const HOME_LISTING_LIMIT = 6;
 
 let allProperties = [];
@@ -21,7 +24,7 @@ function escapeHtml(value) {
 function formatPrice(value) {
   if (!value) return "Price on request";
   const raw = String(value).trim();
-  if (raw.includes("NGN") || raw.includes("₦")) return raw.replace("₦", "NGN ");
+  if (raw.includes("NGN") || raw.includes("\u20a6")) return raw.replace("\u20a6", "NGN ");
   return `NGN ${raw}`;
 }
 
@@ -42,6 +45,81 @@ function searchableValue(value) {
   if (Array.isArray(value)) return value.map(searchableValue).join(" ");
   if (typeof value === "object") return Object.values(value).map(searchableValue).join(" ");
   return String(value);
+}
+
+function listingType(item) {
+  if (item?.listing_type === "land") return "land";
+  const category = String(item?.category || "").toLowerCase();
+  return category.includes("land") ? "land" : "property";
+}
+
+function visibleForPage(item) {
+  const type = listingType(item);
+  if (IS_LANDS_PAGE) return type === "land";
+  if (IS_PROPERTIES_PAGE) return type !== "land";
+  return true;
+}
+
+function parsePriceValue(value) {
+  const raw = String(value || "").toLowerCase().replace(/,/g, "").trim();
+  const compact = raw.match(/(\d+(?:\.\d+)?)\s*(b|bn|billion|m|mn|million)\b/);
+  if (compact) {
+    const amount = Number(compact[1]);
+    return compact[2].startsWith("b") ? amount * 1000000000 : amount * 1000000;
+  }
+
+  const digits = raw.replace(/[^\d.]/g, "");
+  return digits ? Number(digits) : null;
+}
+
+function matchesPriceRange(item, rangeValue) {
+  if (!rangeValue) return true;
+  const price = parsePriceValue(item.price);
+  if (!price) return false;
+  const [minRaw, maxRaw] = rangeValue.split("-");
+  const min = minRaw ? Number(minRaw) : 0;
+  const max = maxRaw ? Number(maxRaw) : Infinity;
+  return price >= min && price <= max;
+}
+
+function matchesBedroomCount(item, value) {
+  if (!value) return true;
+  const bedrooms = Number(item.bedrooms || 0);
+  if (value.endsWith("+")) return bedrooms >= Number(value.replace("+", ""));
+  return bedrooms === Number(value);
+}
+
+function applyFilters() {
+  const query = document.getElementById("searchInput")?.value.toLowerCase().trim() || "";
+  const category = document.getElementById("categoryFilter")?.value.toLowerCase().trim() || "";
+  const bedroom = document.getElementById("bedroomFilter")?.value || "";
+  const priceRange = document.getElementById("priceFilter")?.value || "";
+  const locationFilter = document.getElementById("locationFilter")?.value.toLowerCase().trim() || "";
+  const documentFilter = document.getElementById("documentFilter")?.value.toLowerCase().trim() || "";
+  const sizeFilter = document.getElementById("sizeFilter")?.value.toLowerCase().trim() || "";
+  const words = query.split(/\s+/).filter(Boolean);
+
+  const filtered = allProperties.filter((item) => {
+    if (!visibleForPage(item)) return false;
+    const haystack = searchableValue(item).toLowerCase();
+    const itemCategory = String(item.category || "").toLowerCase();
+    const itemLocation = String(item.location || "").toLowerCase();
+    const itemSize = String(item.size || "").toLowerCase();
+    const categoryMatch = !category || itemCategory.includes(category) || haystack.includes(category);
+    const locationMatch = !locationFilter || itemLocation.includes(locationFilter) || haystack.includes(locationFilter);
+    const documentMatch = !documentFilter || itemCategory.includes(documentFilter) || haystack.includes(documentFilter);
+    const sizeMatch = !sizeFilter || itemSize.includes(sizeFilter) || haystack.includes(sizeFilter);
+
+    return words.every((word) => haystack.includes(word))
+      && categoryMatch
+      && locationMatch
+      && documentMatch
+      && sizeMatch
+      && matchesBedroomCount(item, bedroom)
+      && matchesPriceRange(item, priceRange);
+  });
+
+  renderListings(filtered);
 }
 
 function renderShowcase(properties = []) {
@@ -133,16 +211,16 @@ async function loadListings() {
   });
 
   allProperties = data;
-  renderListings(data);
-  renderShowcase(data);
+  applyFilters();
+  renderShowcase(data.filter((item) => listingType(item) !== "land"));
 }
 
 function renderListings(list) {
   const listings = document.getElementById('listings');
   if (!listings) return;
 
-  const displayList = IS_PROPERTIES_PAGE ? list : (list || []).slice(0, HOME_LISTING_LIMIT);
-  updateCount(IS_PROPERTIES_PAGE ? (list?.length || 0) : Math.min(list?.length || 0, HOME_LISTING_LIMIT));
+  const displayList = (IS_PROPERTIES_PAGE || IS_LANDS_PAGE) ? list : (list || []).slice(0, HOME_LISTING_LIMIT);
+  updateCount((IS_PROPERTIES_PAGE || IS_LANDS_PAGE) ? (list?.length || 0) : Math.min(list?.length || 0, HOME_LISTING_LIMIT));
 
   if (!displayList || displayList.length === 0) {
     listings.innerHTML = '<div class="empty-state">No matching properties available right now.</div>';
@@ -152,42 +230,56 @@ function renderListings(list) {
   listings.innerHTML = displayList
     .map((item) => {
       const media = getPropertyMedia(item);
-      const firstMedia = media[0] || { url: FALLBACK_IMAGE, type: "image" };
+      const isLand = listingType(item) === "land";
+      const firstMedia = media[0] || { url: isLand ? FALLBACK_LAND_IMAGE : FALLBACK_IMAGE, type: "image" };
       const status = item.status === "Sold" ? "Sold" : "Available";
+      const meta = [
+        item.location || "Location on request",
+        item.category,
+        isLand && item.size ? item.size : "",
+        !isLand && item.bedrooms ? `${item.bedrooms} bed` : "",
+      ].filter(Boolean).join(" / ");
+
       return `
         <article class="property-card">
           <div class="property-card-media">
             ${firstMedia.type === "video"
               ? `<video src="${escapeHtml(firstMedia.url)}" muted playsinline preload="metadata"></video><span class="media-chip">Video</span>`
-              : `<img src="${escapeHtml(firstMedia.url)}" alt="${escapeHtml(item.title || 'Property image')}" loading="lazy" onerror="this.src='${FALLBACK_IMAGE}'">`
+              : `<img src="${escapeHtml(firstMedia.url)}" alt="${escapeHtml(item.title || 'Property image')}" loading="lazy" onerror="this.src='${isLand ? FALLBACK_LAND_IMAGE : FALLBACK_IMAGE}'">`
             }
             <span class="property-status">${status}</span>
           </div>
           <div class="property-card-body">
             <h3>${escapeHtml(item.title || 'Untitled Property')}</h3>
             <div class="property-price">${escapeHtml(formatPrice(item.price))}</div>
-            <div class="property-meta">${escapeHtml(item.location || "Location on request")}${item.category ? ` • ${escapeHtml(item.category)}` : ""}</div>
+            <div class="property-meta">${escapeHtml(meta)}</div>
             <p>${escapeHtml(shortText(item.description))}</p>
-            <button type="button" onclick="location.href='/property?id=${encodeURIComponent(item.id)}'">View Details</button>
+            <button type="button" onclick="location.href='/property?id=${encodeURIComponent(item.id)}'">${isLand ? "View Land" : "View Details"}</button>
           </div>
         </article>
       `;
     })
-    .join('') + (!IS_PROPERTIES_PAGE && list.length > HOME_LISTING_LIMIT
-      ? `<div class="listing-more"><a href="/properties">View all ${list.length} properties</a></div>`
+    .join('') + (!(IS_PROPERTIES_PAGE || IS_LANDS_PAGE) && list.length > HOME_LISTING_LIMIT
+      ? `<div class="listing-more"><a href="/properties">View Properties</a><a href="/lands">View Land</a></div>`
       : '');
 }
 
 const searchInput = document.getElementById('searchInput');
-if (searchInput) {
-  searchInput.addEventListener('input', (e) => {
-    const query = e.target.value.toLowerCase().trim();
-    const words = query.split(/\s+/).filter(Boolean);
-    const filtered = allProperties.filter((item) => {
-      const haystack = searchableValue(item).toLowerCase();
-      return words.every((word) => haystack.includes(word));
+if (searchInput) searchInput.addEventListener('input', applyFilters);
+
+["categoryFilter", "bedroomFilter", "priceFilter", "locationFilter", "documentFilter", "sizeFilter"].forEach((id) => {
+  const control = document.getElementById(id);
+  if (control) control.addEventListener("change", applyFilters);
+});
+
+const clearFiltersBtn = document.getElementById("clearFilters");
+if (clearFiltersBtn) {
+  clearFiltersBtn.addEventListener("click", () => {
+    ["searchInput", "categoryFilter", "bedroomFilter", "priceFilter", "locationFilter", "documentFilter", "sizeFilter"].forEach((id) => {
+      const control = document.getElementById(id);
+      if (control) control.value = "";
     });
-    renderListings(filtered);
+    applyFilters();
   });
 }
 
@@ -265,4 +357,3 @@ if (loginForm) {
 loadListings();
 renderShowcase();
 if (document.getElementById('listings')) loadPromoPopup();
-

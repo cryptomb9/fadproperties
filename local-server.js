@@ -11,6 +11,7 @@ const routes = new Map([
   ['/about', 'about.html'],
   ['/contact', 'contact.html'],
   ['/properties', 'properties.html'],
+  ['/lands', 'lands.html'],
   ['/property', 'property.html'],
   ['/admin', 'admin.html'],
 ]);

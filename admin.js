@@ -4,8 +4,13 @@ import { SUPABASE_ANON_KEY, SUPABASE_URL } from './supabase-config.js';
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const propertyForm = document.getElementById('propertyForm');
+const landForm = document.getElementById('landForm');
 const promoForm = document.getElementById('promoForm');
 const logoutBtn = document.getElementById('logoutBtn');
+const adminLoginPanel = document.getElementById('adminLoginPanel');
+const adminDashboard = document.getElementById('adminDashboard');
+const adminLoginForm = document.getElementById('admin-login-form');
+const errorMessage = document.getElementById('error-message');
 
 function escapeHtml(value) {
   return String(value ?? "")
@@ -16,17 +21,34 @@ function escapeHtml(value) {
     .replaceAll("'", "&#039;");
 }
 
+function listingType(item) {
+  if (item?.listing_type === 'land') return 'land';
+  return String(item?.category || '').toLowerCase().includes('land') ? 'land' : 'property';
+}
+
 if (logoutBtn) {
   logoutBtn.addEventListener('click', async () => {
     await supabase.auth.signOut();
-    window.location.href = '/';
+    showLogin();
   });
+}
+
+function showLogin() {
+  if (adminLoginPanel) adminLoginPanel.style.display = 'grid';
+  if (adminDashboard) adminDashboard.style.display = 'none';
+  if (logoutBtn) logoutBtn.style.display = 'none';
+}
+
+function showDashboard() {
+  if (adminLoginPanel) adminLoginPanel.style.display = 'none';
+  if (adminDashboard) adminDashboard.style.display = 'block';
+  if (logoutBtn) logoutBtn.style.display = 'inline-flex';
 }
 
 async function requireAdminSession() {
   const { data: { session }, error } = await supabase.auth.getSession();
   if (error || !session) {
-    window.location.href = '/';
+    showLogin();
     return false;
   }
 
@@ -38,11 +60,79 @@ async function requireAdminSession() {
 
   if (adminError || !data) {
     await supabase.auth.signOut();
-    window.location.href = '/';
+    showLogin();
     return false;
   }
 
+  showDashboard();
   return true;
+}
+
+if (adminLoginForm) {
+  adminLoginForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (errorMessage) errorMessage.style.display = 'none';
+
+    const submitBtn = adminLoginForm.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Signing in...';
+
+    const email = adminLoginForm.querySelector('input[type="email"]').value.trim();
+    const password = adminLoginForm.querySelector('input[type="password"]').value;
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Login';
+
+    if (error) {
+      console.error(error);
+      if (errorMessage) errorMessage.style.display = 'block';
+      return;
+    }
+
+    if (await requireAdminSession()) {
+      loadProperties();
+      loadPromos();
+    }
+  });
+}
+
+async function uploadMediaFiles(files, submitBtn, buttonText) {
+  const media = [];
+  const imageUrls = [];
+  for (const file of files) {
+    const safeName = file.name.replace(/[^a-z0-9.\-_]/gi, '-');
+    const isVideo = file.type.startsWith('video/');
+    const { data, error } = await supabase.storage
+      .from('property-images')
+      .upload(`public/${Date.now()}_${safeName}`, file);
+
+    if (error) {
+      console.error(error);
+      submitBtn.disabled = false;
+      submitBtn.textContent = buttonText;
+      throw new Error('Media upload failed: ' + error.message);
+    }
+
+    const { data: publicData } = supabase
+      .storage
+      .from('property-images')
+      .getPublicUrl(data.path);
+
+    if (!publicData?.publicUrl) {
+      submitBtn.disabled = false;
+      submitBtn.textContent = buttonText;
+      throw new Error('Could not get public URL.');
+    }
+
+    media.push({
+      url: publicData.publicUrl,
+      type: isVideo ? 'video' : 'image',
+    });
+    if (!isVideo) imageUrls.push(publicData.publicUrl);
+  }
+
+  return { media, imageUrls };
 }
 
 propertyForm.addEventListener('submit', async (e) => {
@@ -60,52 +150,25 @@ propertyForm.addEventListener('submit', async (e) => {
   const price = document.getElementById('price').value.trim();
   const files = document.getElementById('media').files;
 
-  if (!title || !location || !description || !price || files.length === 0) {
+  if (!title || !location || !category || !description || !price || files.length === 0) {
     submitBtn.disabled = false;
     submitBtn.textContent = 'Publish Property';
-    alert('Fill all fields and select at least one image.');
+    alert('Fill all required fields and select at least one image or video.');
     return;
   }
 
-  const media = [];
-  const imageUrls = [];
-  for (const file of files) {
-    const safeName = file.name.replace(/[^a-z0-9.\-_]/gi, '-');
-    const isVideo = file.type.startsWith('video/');
-    const { data, error } = await supabase.storage
-      .from('property-images')
-      .upload(`public/${Date.now()}_${safeName}`, file);
-
-    if (error) {
-      console.error(error);
-      submitBtn.disabled = false;
-      submitBtn.textContent = 'Publish Property';
-      alert('Image upload failed: ' + error.message);
-      return;
-    }
-
-    const { data: publicData } = supabase
-      .storage
-      .from('property-images')
-      .getPublicUrl(data.path);
-
-    if (!publicData?.publicUrl) {
-      submitBtn.disabled = false;
-      submitBtn.textContent = 'Publish Property';
-      alert('Could not get public URL.');
-      return;
-    }
-
-    media.push({
-      url: publicData.publicUrl,
-      type: isVideo ? 'video' : 'image',
-    });
-    if (!isVideo) imageUrls.push(publicData.publicUrl);
+  let uploaded;
+  try {
+    uploaded = await uploadMediaFiles(files, submitBtn, 'Publish Property');
+  } catch (error) {
+    alert(error.message);
+    return;
   }
 
   const { error: insertError } = await supabase
     .from('properties')
     .insert([{
+      listing_type: 'property',
       title,
       location,
       category,
@@ -113,8 +176,8 @@ propertyForm.addEventListener('submit', async (e) => {
       bathrooms: bathrooms ? Number(bathrooms) : null,
       description,
       price,
-      images: imageUrls,
-      media,
+      images: uploaded.imageUrls,
+      media: uploaded.media,
       status: 'Available'
     }]);
 
@@ -132,6 +195,68 @@ propertyForm.addEventListener('submit', async (e) => {
   loadProperties();
 });
 
+landForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const submitBtn = landForm.querySelector('button[type="submit"]');
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Publishing...';
+
+  const title = document.getElementById('landTitle').value.trim();
+  const location = document.getElementById('landLocation').value.trim();
+  const category = document.getElementById('landCategory').value.trim();
+  const size = document.getElementById('landSize').value.trim();
+  const description = document.getElementById('landDescription').value.trim();
+  const price = document.getElementById('landPrice').value.trim();
+  const files = document.getElementById('landMedia').files;
+
+  if (!title || !location || !category || !size || !description || !price) {
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Publish Land';
+    alert('Fill all land fields.');
+    return;
+  }
+
+  let uploaded = { media: [], imageUrls: [] };
+  if (files.length > 0) {
+    try {
+      uploaded = await uploadMediaFiles(files, submitBtn, 'Publish Land');
+    } catch (error) {
+      alert(error.message);
+      return;
+    }
+  }
+
+  const { error: insertError } = await supabase
+    .from('properties')
+    .insert([{
+      listing_type: 'land',
+      title,
+      location,
+      category,
+      size,
+      bedrooms: null,
+      bathrooms: null,
+      description,
+      price,
+      images: uploaded.imageUrls,
+      media: uploaded.media,
+      status: 'Available'
+    }]);
+
+  if (insertError) {
+    console.error(insertError);
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Publish Land';
+    alert('Failed to save land: ' + insertError.message);
+    return;
+  }
+
+  landForm.reset();
+  submitBtn.disabled = false;
+  submitBtn.textContent = 'Publish Land';
+  loadProperties();
+});
+
 async function loadProperties() {
   const { data, error } = await supabase
     .from('properties')
@@ -146,12 +271,15 @@ async function loadProperties() {
   }
 
   const totalEl = document.getElementById('totalProperties');
+  const landsEl = document.getElementById('totalLands');
   const availableEl = document.getElementById('availableProperties');
   const soldEl = document.getElementById('soldProperties');
-  if (totalEl && availableEl && soldEl) {
-    totalEl.textContent = String(data?.length || 0);
-    availableEl.textContent = String((data || []).filter((item) => item.status !== 'Sold').length);
-    soldEl.textContent = String((data || []).filter((item) => item.status === 'Sold').length);
+  if (totalEl && landsEl && availableEl && soldEl) {
+    const items = data || [];
+    totalEl.textContent = String(items.filter((item) => listingType(item) !== 'land').length);
+    landsEl.textContent = String(items.filter((item) => listingType(item) === 'land').length);
+    availableEl.textContent = String(items.filter((item) => item.status !== 'Sold').length);
+    soldEl.textContent = String(items.filter((item) => item.status === 'Sold').length);
   }
 
   if (!data || data.length === 0) {
@@ -162,7 +290,8 @@ async function loadProperties() {
   container.innerHTML = data.map((item) => `
     <article class="admin-property-card">
       <h3>${escapeHtml(item.title)}</h3>
-      <p>${escapeHtml(item.location || 'Location not set')}</p>
+      <p>${escapeHtml(listingType(item) === 'land' ? 'Land' : 'Property')} / ${escapeHtml(item.location || 'Location not set')}</p>
+      <p>${escapeHtml([item.category, item.size].filter(Boolean).join(' / ') || 'Category not set')}</p>
       <p>${escapeHtml(item.description || '').slice(0, 170)}${(item.description || '').length > 170 ? '...' : ''}</p>
       <p>Status: <strong>${escapeHtml(item.status || 'Available')}</strong></p>
       <div class="admin-actions">

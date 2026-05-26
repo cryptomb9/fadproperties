@@ -213,6 +213,7 @@ select {
 .property-card button,
 #admin-login-form button,
 #propertyForm button,
+#landForm button,
 #promoForm button,
 .admin-property-card button,
 .promo-card button,
@@ -239,6 +240,7 @@ select {
 .property-card button:hover,
 #admin-login-form button:hover,
 #propertyForm button:hover,
+#landForm button:hover,
 #promoForm button:hover,
 .admin-property-card button:hover,
 .promo-card button:hover,
@@ -593,6 +595,38 @@ select {
   border-radius: var(--radius);
 }
 
+.filter-panel {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 12px;
+  margin: -12px 0 26px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.74);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.filter-panel input,
+.filter-panel select,
+.filter-panel button {
+  min-height: 46px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--ink);
+  font-weight: 750;
+}
+
+.filter-panel input,
+.filter-panel select {
+  padding: 0 14px;
+}
+
+.filter-panel button {
+  padding: 0 18px;
+  cursor: pointer;
+}
+
 .listing-more {
   grid-column: 1 / -1;
   display: flex;
@@ -781,6 +815,7 @@ select {
 
 #admin-login-form,
 #propertyForm,
+#landForm,
 #promoForm {
   display: grid;
   gap: 12px;
@@ -788,7 +823,11 @@ select {
 
 #admin-login-form input,
 #propertyForm input,
+#propertyForm select,
 #propertyForm textarea,
+#landForm input,
+#landForm select,
+#landForm textarea,
 #promoForm input {
   width: 100%;
   min-height: 46px;
@@ -804,7 +843,8 @@ select {
   gap: 12px;
 }
 
-#propertyForm textarea {
+#propertyForm textarea,
+#landForm textarea {
   min-height: 130px;
   resize: vertical;
 }
@@ -822,6 +862,12 @@ select {
   background:
     linear-gradient(90deg, rgba(7, 25, 20, 0.88), rgba(7, 25, 20, 0.42)),
     url("https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1800&q=85") center/cover;
+}
+
+.land-hero {
+  background:
+    linear-gradient(90deg, rgba(7, 25, 20, 0.88), rgba(7, 25, 20, 0.36)),
+    url("images/land-hero-nigeria.png") center/cover;
 }
 
 .page-title {
@@ -1014,6 +1060,23 @@ select {
   padding: 112px 0 70px;
 }
 
+.admin-login-panel {
+  min-height: calc(100vh - 180px);
+  display: grid;
+  align-items: center;
+}
+
+.admin-login-panel .admin-panel {
+  width: min(460px, 100%);
+  margin: 0 auto;
+}
+
+.admin-login-panel h1 {
+  margin: 0 0 22px;
+  font-size: clamp(2rem, 5vw, 3.4rem);
+  line-height: 1;
+}
+
 .admin-topbar {
   display: flex;
   justify-content: space-between;
@@ -1024,7 +1087,7 @@ select {
 
 .admin-stats {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 12px;
   margin-bottom: 22px;
 }
@@ -1239,6 +1302,10 @@ select {
   }
 
   .search-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .filter-panel {
     grid-template-columns: 1fr;
   }
 

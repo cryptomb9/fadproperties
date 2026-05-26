@@ -30,11 +30,11 @@
       <ul class="links">
         <li><a href="/" class="nav-btn">Home</a></li>
         <li><a href="/properties" class="nav-btn active">Properties</a></li>
+        <li><a href="/lands" class="nav-btn">Land</a></li>
         <li><a href="/#services" class="nav-btn">Services</a></li>
         <li><a href="/#work" class="nav-btn">Projects</a></li>
         <li><a href="/about" class="nav-btn">About Us</a></li>
         <li><a href="/contact" class="nav-btn">Contact</a></li>
-        <li><a href="#" class="nav-btn admin-login-btn">Admin</a></li>
       </ul>
     </nav>
   </header>
@@ -44,7 +44,7 @@
       <div class="page-title">
         <p class="eyebrow">Property portfolio</p>
         <h1>Browse available homes, land, and investment spaces.</h1>
-        <p>Search by location, category, price, bedroom count, description, or any keyword that matters to you.</p>
+        <p>Search by location, property type, bedroom count, price range, description, or any keyword that matters to you.</p>
       </div>
     </div>
   </section>
@@ -62,22 +62,40 @@
         <input type="text" id="searchInput" placeholder="Search by location, duplex, land, 4 bed, Mowe, Lekki..." class="search-bar" />
         <div class="search-meta" id="listingCount">Loading</div>
       </div>
+      <div class="filter-panel" aria-label="Property filters">
+        <select id="categoryFilter">
+          <option value="">Any property type</option>
+          <option value="apartment">Apartment</option>
+          <option value="duplex">Duplex</option>
+          <option value="detached duplex">Detached duplex</option>
+          <option value="semi detached duplex">Semi detached duplex</option>
+          <option value="terrace duplex">Terrace duplex</option>
+          <option value="bungalow">Bungalow</option>
+          <option value="shortlet">Shortlet</option>
+          <option value="commercial">Commercial</option>
+        </select>
+        <select id="bedroomFilter">
+          <option value="">Any bedroom count</option>
+          <option value="1">1 bedroom</option>
+          <option value="2">2 bedrooms</option>
+          <option value="3">3 bedrooms</option>
+          <option value="4">4 bedrooms</option>
+          <option value="5">5 bedrooms</option>
+          <option value="6+">6+ bedrooms</option>
+        </select>
+        <select id="priceFilter">
+          <option value="">Any price range</option>
+          <option value="0-50000000">Under NGN 50M</option>
+          <option value="50000000-100000000">NGN 50M - 100M</option>
+          <option value="100000000-250000000">NGN 100M - 250M</option>
+          <option value="250000000-500000000">NGN 250M - 500M</option>
+          <option value="500000000-">NGN 500M+</option>
+        </select>
+        <button type="button" id="clearFilters">Clear</button>
+      </div>
       <div id="listings"></div>
     </div>
   </main>
-
-  <div class="modal" id="admin-login-modal">
-    <div class="modal-content">
-      <span class="close-btn">&times;</span>
-      <h2>Admin Login</h2>
-      <form id="admin-login-form">
-        <input type="email" placeholder="Email" required />
-        <input type="password" placeholder="Password" required />
-        <button type="submit">Login</button>
-        <p id="error-message" style="display:none;">Invalid email or password</p>
-      </form>
-    </div>
-  </div>
 
   <footer class="site-footer">
     <div class="footer-shell">
@@ -87,6 +105,7 @@
       </div>
       <div class="footer-links">
         <a href="/properties">Properties</a>
+        <a href="/lands">Land</a>
         <a href="/#services">Services</a>
         <a href="/about">Company</a>
         <a href="/contact">Contact</a>

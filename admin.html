@@ -18,16 +18,31 @@
       <ul class="links">
         <li><a href="/" class="nav-btn">Home</a></li>
         <li><a href="/properties" class="nav-btn">Properties</a></li>
+        <li><a href="/lands" class="nav-btn">Land</a></li>
         <li><a href="/#services" class="nav-btn">Services</a></li>
         <li><a href="/#work" class="nav-btn">Projects</a></li>
         <li><a href="/about" class="nav-btn">About Us</a></li>
         <li><a href="/contact" class="nav-btn">Contact</a></li>
-        <li><button id="logoutBtn" class="nav-btn nav-strong" type="button">Logout</button></li>
+        <li><button id="logoutBtn" class="nav-btn nav-strong" type="button" style="display:none;">Logout</button></li>
       </ul>
     </nav>
   </header>
 
   <main class="admin-shell">
+    <section class="admin-login-panel" id="adminLoginPanel">
+      <div class="admin-panel">
+        <p class="eyebrow">Admin access</p>
+        <h1>Sign in</h1>
+        <form id="admin-login-form">
+          <input type="email" placeholder="Email" required />
+          <input type="password" placeholder="Password" required />
+          <button type="submit">Login</button>
+          <p id="error-message" style="display:none;">Invalid email or password</p>
+        </form>
+      </div>
+    </section>
+
+    <div id="adminDashboard" style="display:none;">
     <div class="admin-topbar">
       <div>
         <p class="eyebrow">Company operations</p>
@@ -38,6 +53,7 @@
 
     <section class="admin-stats" aria-label="Property summary">
       <div class="admin-stat"><strong id="totalProperties">0</strong><span>Total properties</span></div>
+      <div class="admin-stat"><strong id="totalLands">0</strong><span>Land listings</span></div>
       <div class="admin-stat"><strong id="availableProperties">0</strong><span>Available</span></div>
       <div class="admin-stat"><strong id="soldProperties">0</strong><span>Sold</span></div>
     </section>
@@ -49,7 +65,17 @@
           <form id="propertyForm">
             <input type="text" id="title" placeholder="Property title" required />
             <input type="text" id="location" placeholder="Location, e.g. Magodo, Ikeja, Mowe" required />
-            <input type="text" id="category" placeholder="Category, e.g. Duplex, Apartment, Land, Shortlet" />
+            <select id="category" required>
+              <option value="">Select property type</option>
+              <option value="Apartment">Apartment</option>
+              <option value="Duplex">Duplex</option>
+              <option value="Detached Duplex">Detached Duplex</option>
+              <option value="Semi Detached Duplex">Semi Detached Duplex</option>
+              <option value="Terrace Duplex">Terrace Duplex</option>
+              <option value="Bungalow">Bungalow</option>
+              <option value="Shortlet">Shortlet</option>
+              <option value="Commercial">Commercial</option>
+            </select>
             <div class="form-row">
               <input type="number" id="bedrooms" placeholder="Bedrooms" min="0" />
               <input type="number" id="bathrooms" placeholder="Bathrooms" min="0" />
@@ -58,6 +84,20 @@
             <input type="text" id="price" placeholder="Price, e.g. 45,000,000" required />
             <input type="file" id="media" accept="image/*,video/*" multiple required />
             <button type="submit">Publish Property</button>
+          </form>
+        </section>
+
+        <section class="admin-panel" style="margin-top:22px;">
+          <h2>Post Land</h2>
+          <form id="landForm">
+            <input type="text" id="landTitle" placeholder="Land title, e.g. 2 plots in Mowe" required />
+            <input type="text" id="landLocation" placeholder="Location" required />
+            <input type="text" id="landCategory" placeholder="Document/title, e.g. C of O, Excision, Gazette" required />
+            <input type="text" id="landSize" placeholder="Land size, e.g. 300 sqm, 500 sqm, 1 plot, 2 acres" required />
+            <textarea id="landDescription" placeholder="Description, size, estate details, access road, inspection notes" rows="4" required></textarea>
+            <input type="text" id="landPrice" placeholder="Amount, e.g. 12,000,000" required />
+            <input type="file" id="landMedia" accept="image/*,video/*" multiple />
+            <button type="submit">Publish Land</button>
           </form>
         </section>
 
@@ -75,6 +115,7 @@
         <h2>Property Inventory</h2>
         <div id="properties-container" class="properties-list"></div>
       </section>
+    </div>
     </div>
   </main>
 

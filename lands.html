@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Land - FAD HOMES AND PROPERTY</title>
+  <meta name="description" content="Browse available land listings from FAD HOMES AND PROPERTY by title, location, description, and price range." />
+  <link rel="canonical" href="https://fadhomes.com/lands" />
+  <meta property="og:title" content="Land - FAD HOMES AND PROPERTY" />
+  <meta property="og:description" content="Browse available land listings by title, location, description, and price range." />
+  <meta property="og:url" content="https://fadhomes.com/lands" />
+  <meta property="og:image" content="https://fadhomes.com/images/faflogo.png" />
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+  <script type="module" src="script.js" defer></script>
+</head>
+<body data-page="lands">
+  <header class="header">
+    <nav class="navbar">
+      <div class="logo">
+        <img src="images/faflogo.png" alt="FAD HOMES AND PROPERTY Logo" />
+        <a href="/" class="brand-copy">FAD HOMES AND PROPERTY<span>Homes and investments</span></a>
+      </div>
+      <input type="checkbox" id="menu-toggle" />
+      <label for="menu-toggle" id="hamburger-btn" aria-label="Open navigation">
+        <svg xmlns="http://www.w3.org/2000/svg" height="26" viewBox="0 0 24 24" width="26">
+          <path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </label>
+      <ul class="links">
+        <li><a href="/" class="nav-btn">Home</a></li>
+        <li><a href="/properties" class="nav-btn">Properties</a></li>
+        <li><a href="/lands" class="nav-btn active">Land</a></li>
+        <li><a href="/#services" class="nav-btn">Services</a></li>
+        <li><a href="/#work" class="nav-btn">Projects</a></li>
+        <li><a href="/about" class="nav-btn">About Us</a></li>
+        <li><a href="/contact" class="nav-btn">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <section class="page-hero land-hero">
+    <div class="page-shell">
+      <div class="page-title">
+        <p class="eyebrow">Land portfolio</p>
+        <h1>Search available land by title, location, and budget.</h1>
+        <p>Browse land listings separately from homes and duplexes, then make direct enquiries for inspection and next steps.</p>
+      </div>
+    </div>
+  </section>
+
+  <main class="search-and-listings">
+    <div class="section-shell">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Available land</p>
+          <h2>Find the right plot</h2>
+        </div>
+        <p>Filter land by title, location, description, or preselected price range.</p>
+      </div>
+      <div class="search-panel">
+        <input type="text" id="searchInput" placeholder="Search by title, location, C of O, excision, estate..." class="search-bar" />
+        <div class="search-meta" id="listingCount">Loading</div>
+      </div>
+      <div class="filter-panel" aria-label="Land filters">
+        <input type="text" id="locationFilter" placeholder="Location" />
+        <input type="text" id="documentFilter" placeholder="Document/title, e.g. C of O" />
+        <input type="text" id="sizeFilter" placeholder="Size, e.g. 500 sqm, 1 plot" />
+        <select id="priceFilter">
+          <option value="">Any price range</option>
+          <option value="0-10000000">Under NGN 10M</option>
+          <option value="10000000-25000000">NGN 10M - 25M</option>
+          <option value="25000000-50000000">NGN 25M - 50M</option>
+          <option value="50000000-100000000">NGN 50M - 100M</option>
+          <option value="100000000-">NGN 100M+</option>
+        </select>
+        <button type="button" id="clearFilters">Clear</button>
+      </div>
+      <div id="listings"></div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-shell">
+      <div>
+        <strong>FAD HOMES AND PROPERTY</strong>
+        <span>Property sales, rentals, development, and advisory.</span>
+      </div>
+      <div class="footer-links">
+        <a href="/properties">Properties</a>
+        <a href="/lands">Land</a>
+        <a href="/#services">Services</a>
+        <a href="/about">Company</a>
+        <a href="/contact">Contact</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

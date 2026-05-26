@@ -18,6 +18,7 @@ This site uses Supabase for properties, promo images, and admin uploads.
 
 This creates:
 - `properties`
+- `listing_type` support for separating properties from land
 - `promos`
 - `admins`
 - `property-images` storage bucket
@@ -64,9 +65,11 @@ Public visitors can read properties and promos. Only users listed in `public.adm
 ## 5. Property Fields
 
 The admin panel saves:
+- listing type, either `property` or `land`
 - title
 - location
-- category
+- category or land title/document type
+- land size, when posting land
 - bedrooms
 - bathrooms
 - description
@@ -76,6 +79,7 @@ The admin panel saves:
 - status
 
 Search on the homepage checks all property fields, including location and category.
+The public `/properties` page shows homes and buildings. The public `/lands` page shows land listings separately.
 
 ## 6. Enabling Video Uploads
 

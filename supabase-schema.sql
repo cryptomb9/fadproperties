@@ -26,6 +26,19 @@ add column if not exists featured boolean not null default false;
 alter table public.properties
 add column if not exists media jsonb not null default '[]'::jsonb;
 
+alter table public.properties
+add column if not exists listing_type text not null default 'property';
+
+alter table public.properties
+add column if not exists size text not null default '';
+
+alter table public.properties
+drop constraint if exists properties_listing_type_check;
+
+alter table public.properties
+add constraint properties_listing_type_check
+check (listing_type in ('property', 'land'));
+
 create table if not exists public.promos (
   id uuid primary key default gen_random_uuid(),
   image_url text not null,
@@ -51,12 +64,16 @@ on public.properties (status);
 create index if not exists properties_location_idx
 on public.properties (location);
 
+create index if not exists properties_listing_type_idx
+on public.properties (listing_type);
+
 drop policy if exists "Public can read properties" on public.properties;
 create policy "Public can read properties"
 on public.properties for select
 using (true);
 
 drop policy if exists "Public can insert properties" on public.properties;
+drop policy if exists "Admins can insert properties" on public.properties;
 create policy "Admins can insert properties"
 on public.properties for insert
 to authenticated
@@ -65,6 +82,7 @@ with check (exists (
 ));
 
 drop policy if exists "Public can update properties" on public.properties;
+drop policy if exists "Admins can update properties" on public.properties;
 create policy "Admins can update properties"
 on public.properties for update
 to authenticated
@@ -76,6 +94,7 @@ with check (exists (
 ));
 
 drop policy if exists "Public can delete properties" on public.properties;
+drop policy if exists "Admins can delete properties" on public.properties;
 create policy "Admins can delete properties"
 on public.properties for delete
 to authenticated
@@ -89,6 +108,7 @@ on public.promos for select
 using (true);
 
 drop policy if exists "Public can insert promos" on public.promos;
+drop policy if exists "Admins can insert promos" on public.promos;
 create policy "Admins can insert promos"
 on public.promos for insert
 to authenticated
@@ -97,6 +117,7 @@ with check (exists (
 ));
 
 drop policy if exists "Public can delete promos" on public.promos;
+drop policy if exists "Admins can delete promos" on public.promos;
 create policy "Admins can delete promos"
 on public.promos for delete
 to authenticated
@@ -124,6 +145,7 @@ on storage.objects for select
 using (bucket_id = 'property-images');
 
 drop policy if exists "Public can upload property images" on storage.objects;
+drop policy if exists "Admins can upload property images" on storage.objects;
 create policy "Admins can upload property images"
 on storage.objects for insert
 to authenticated
@@ -138,6 +160,7 @@ on storage.objects for select
 using (bucket_id = 'promo-images');
 
 drop policy if exists "Public can upload promo images" on storage.objects;
+drop policy if exists "Admins can upload promo images" on storage.objects;
 create policy "Admins can upload promo images"
 on storage.objects for insert
 to authenticated
