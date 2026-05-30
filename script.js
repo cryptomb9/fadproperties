@@ -188,6 +188,20 @@ function getPropertyMedia(item) {
   return images.map((url) => ({ url, type: "image" }));
 }
 
+function copyText(value) {
+  if (navigator.clipboard?.writeText) return navigator.clipboard.writeText(value);
+  const input = document.createElement('textarea');
+  input.value = value;
+  input.setAttribute('readonly', '');
+  input.style.position = 'fixed';
+  input.style.opacity = '0';
+  document.body.appendChild(input);
+  input.select();
+  document.execCommand('copy');
+  input.remove();
+  return Promise.resolve();
+}
+
 async function loadListings() {
   const listings = document.getElementById('listings');
   if (!listings) return;
@@ -266,6 +280,9 @@ function renderListings(list) {
           </div>
           <div class="property-card-body">
             <h3>${escapeHtml(item.title || 'Untitled Property')}</h3>
+            <div class="public-listing-id">
+              <button type="button" class="copy-public-id" data-id="${escapeHtml(item.id)}">Copy ID</button>
+            </div>
             <div class="property-price">${escapeHtml(formatPrice(item.price))}</div>
             <div class="property-meta">${escapeHtml(meta)}</div>
             <p>${escapeHtml(shortText(item.description))}</p>
@@ -281,6 +298,18 @@ function renderListings(list) {
 
 const searchInput = document.getElementById('searchInput');
 if (searchInput) searchInput.addEventListener('input', applyFilters);
+
+const listingsEl = document.getElementById('listings');
+if (listingsEl) {
+  listingsEl.addEventListener('click', async (event) => {
+    if (!event.target.classList.contains('copy-public-id')) return;
+    event.preventDefault();
+    event.stopPropagation();
+    await copyText(event.target.dataset.id);
+    event.target.textContent = 'Copied';
+    window.setTimeout(() => (event.target.textContent = 'Copy ID'), 1200);
+  });
+}
 
 ["categoryFilter", "bedroomFilter", "priceFilter", "locationFilter", "documentFilter", "sizeFilter"].forEach((id) => {
   const control = document.getElementById(id);

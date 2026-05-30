@@ -35,6 +35,20 @@ function getPropertyMedia(item) {
   return images.map((url) => ({ url, type: "image" }));
 }
 
+function copyText(value) {
+  if (navigator.clipboard?.writeText) return navigator.clipboard.writeText(value);
+  const input = document.createElement('textarea');
+  input.value = value;
+  input.setAttribute('readonly', '');
+  input.style.position = 'fixed';
+  input.style.opacity = '0';
+  document.body.appendChild(input);
+  input.select();
+  document.execCommand('copy');
+  input.remove();
+  return Promise.resolve();
+}
+
 async function loadProperty() {
   const params = new URLSearchParams(location.search);
   const id = params.get('id');
@@ -65,6 +79,13 @@ async function loadProperty() {
   document.getElementById('title').textContent = title;
   document.getElementById('price').textContent = formatPrice(data.price);
 
+  const copyIdBtn = document.getElementById('copy-listing-id');
+  copyIdBtn.onclick = async () => {
+    await copyText(id);
+    copyIdBtn.textContent = 'Copied';
+    window.setTimeout(() => (copyIdBtn.textContent = 'Copy ID'), 1200);
+  };
+
   const facts = [
     data.location,
     data.category,
@@ -86,7 +107,7 @@ async function loadProperty() {
   } else {
     buyBtn.onclick = () => {
       const listingUrl = `${window.location.origin}/property?id=${encodeURIComponent(id)}`;
-      const msg = encodeURIComponent(`Hello FAD HOMES AND PROPERTY, I am interested in this ${isLand ? 'land' : 'property'}: ${title}\n${listingUrl}`);
+      const msg = encodeURIComponent(`Hello FAD HOMES AND PROPERTY, I am interested in this ${isLand ? 'land' : 'property'}: ${title}\nListing ID: ${id}\n${listingUrl}`);
       window.open(`https://wa.me/2348145324251?text=${msg}`, '_blank');
     };
   }

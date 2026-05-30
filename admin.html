@@ -52,10 +52,11 @@
     </div>
 
     <section class="admin-stats" aria-label="Property summary">
-      <div class="admin-stat"><strong id="totalProperties">0</strong><span>Total properties</span></div>
-      <div class="admin-stat"><strong id="totalLands">0</strong><span>Land listings</span></div>
-      <div class="admin-stat"><strong id="availableProperties">0</strong><span>Available</span></div>
-      <div class="admin-stat"><strong id="soldProperties">0</strong><span>Sold</span></div>
+      <button class="admin-stat is-active" type="button" data-inventory-filter="all"><strong id="totalListings">0</strong><span>All listings</span></button>
+      <button class="admin-stat" type="button" data-inventory-filter="property"><strong id="totalProperties">0</strong><span>Properties</span></button>
+      <button class="admin-stat" type="button" data-inventory-filter="land"><strong id="totalLands">0</strong><span>Land</span></button>
+      <button class="admin-stat" type="button" data-inventory-filter="available"><strong id="availableProperties">0</strong><span>Available</span></button>
+      <button class="admin-stat" type="button" data-inventory-filter="sold"><strong id="soldProperties">0</strong><span>Sold</span></button>
     </section>
 
     <div class="admin-grid">
@@ -113,11 +114,51 @@
 
       <section class="admin-panel" id="propertiesList">
         <h2>Property Inventory</h2>
+        <div class="inventory-tools">
+          <input type="search" id="inventorySearch" placeholder="Search by property ID, title, or location" />
+          <button type="button" id="clearInventorySearch">Clear</button>
+        </div>
         <div id="properties-container" class="properties-list"></div>
       </section>
     </div>
     </div>
   </main>
+
+  <div class="modal" id="editListingModal">
+    <div class="modal-content admin-edit-modal">
+      <span class="close-btn" id="closeEditModal">&times;</span>
+      <h2>Edit Listing</h2>
+      <form id="editListingForm">
+        <input type="hidden" id="editId" />
+        <select id="editListingType" required>
+          <option value="property">Property</option>
+          <option value="land">Land</option>
+        </select>
+        <input type="text" id="editTitle" placeholder="Title" required />
+        <input type="text" id="editLocation" placeholder="Location" required />
+        <input type="text" id="editCategory" placeholder="Property type or land document/title" required />
+        <input type="text" id="editSize" placeholder="Land size, if applicable" />
+        <div class="form-row">
+          <input type="number" id="editBedrooms" placeholder="Bedrooms" min="0" />
+          <input type="number" id="editBathrooms" placeholder="Bathrooms" min="0" />
+        </div>
+        <textarea id="editDescription" placeholder="Description" rows="5" required></textarea>
+        <input type="text" id="editPrice" placeholder="Price" required />
+        <select id="editStatus" required>
+          <option value="Available">Available</option>
+          <option value="Sold">Sold</option>
+        </select>
+        <select id="editMediaMode">
+          <option value="keep">Keep existing media</option>
+          <option value="add">Add uploaded media</option>
+          <option value="replace">Replace with uploaded media</option>
+        </select>
+        <input type="file" id="editMedia" accept="image/*,video/*" multiple />
+        <button type="submit">Save Changes</button>
+        <p id="edit-message" class="form-note" style="display:none;"></p>
+      </form>
+    </div>
+  </div>
 
   <script type="module" src="admin.js"></script>
 </body>

@@ -11,6 +11,16 @@ const adminLoginPanel = document.getElementById('adminLoginPanel');
 const adminDashboard = document.getElementById('adminDashboard');
 const adminLoginForm = document.getElementById('admin-login-form');
 const errorMessage = document.getElementById('error-message');
+const inventorySearch = document.getElementById('inventorySearch');
+const clearInventorySearch = document.getElementById('clearInventorySearch');
+const editListingModal = document.getElementById('editListingModal');
+const closeEditModal = document.getElementById('closeEditModal');
+const editListingForm = document.getElementById('editListingForm');
+const editMessage = document.getElementById('edit-message');
+
+let allInventory = [];
+let inventoryFilter = 'all';
+let inventoryQuery = '';
 
 function escapeHtml(value) {
   return String(value ?? "")
@@ -24,6 +34,24 @@ function escapeHtml(value) {
 function listingType(item) {
   if (item?.listing_type === 'land') return 'land';
   return String(item?.category || '').toLowerCase().includes('land') ? 'land' : 'property';
+}
+
+function listingUrl(id) {
+  return `${window.location.origin}/property?id=${encodeURIComponent(id)}`;
+}
+
+function copyText(value) {
+  if (navigator.clipboard?.writeText) return navigator.clipboard.writeText(value);
+  const input = document.createElement('textarea');
+  input.value = value;
+  input.setAttribute('readonly', '');
+  input.style.position = 'fixed';
+  input.style.opacity = '0';
+  document.body.appendChild(input);
+  input.select();
+  document.execCommand('copy');
+  input.remove();
+  return Promise.resolve();
 }
 
 if (logoutBtn) {
@@ -270,31 +298,75 @@ async function loadProperties() {
     return;
   }
 
+  allInventory = data || [];
+  renderInventory();
+}
+
+function updateInventoryStats(items) {
+  const totalListingsEl = document.getElementById('totalListings');
   const totalEl = document.getElementById('totalProperties');
   const landsEl = document.getElementById('totalLands');
   const availableEl = document.getElementById('availableProperties');
   const soldEl = document.getElementById('soldProperties');
-  if (totalEl && landsEl && availableEl && soldEl) {
-    const items = data || [];
+  if (totalListingsEl && totalEl && landsEl && availableEl && soldEl) {
+    totalListingsEl.textContent = String(items.length);
     totalEl.textContent = String(items.filter((item) => listingType(item) !== 'land').length);
     landsEl.textContent = String(items.filter((item) => listingType(item) === 'land').length);
     availableEl.textContent = String(items.filter((item) => item.status !== 'Sold').length);
     soldEl.textContent = String(items.filter((item) => item.status === 'Sold').length);
   }
+}
 
-  if (!data || data.length === 0) {
-    container.innerHTML = '<p>No properties yet.</p>';
+function filteredInventory() {
+  const query = inventoryQuery.toLowerCase().trim();
+  return allInventory.filter((item) => {
+    const type = listingType(item);
+    const status = item.status === 'Sold' ? 'sold' : 'available';
+    const filterMatch = inventoryFilter === 'all'
+      || inventoryFilter === type
+      || inventoryFilter === status;
+    const text = [
+      item.id,
+      item.title,
+      item.location,
+      item.category,
+      item.size,
+      item.description,
+      item.price,
+      item.status,
+    ].filter(Boolean).join(' ').toLowerCase();
+
+    return filterMatch && (!query || text.includes(query));
+  });
+}
+
+function renderInventory() {
+  const container = document.getElementById('properties-container');
+  if (!container) return;
+
+  updateInventoryStats(allInventory);
+
+  const items = filteredInventory();
+  if (!items.length) {
+    container.innerHTML = '<p>No matching listings.</p>';
     return;
   }
 
-  container.innerHTML = data.map((item) => `
+  container.innerHTML = items.map((item) => `
     <article class="admin-property-card">
-      <h3>${escapeHtml(item.title)}</h3>
+      <div class="admin-card-head">
+        <h3>${escapeHtml(item.title)}</h3>
+        <span>${escapeHtml(item.id)}</span>
+      </div>
       <p>${escapeHtml(listingType(item) === 'land' ? 'Land' : 'Property')} / ${escapeHtml(item.location || 'Location not set')}</p>
       <p>${escapeHtml([item.category, item.size].filter(Boolean).join(' / ') || 'Category not set')}</p>
       <p>${escapeHtml(item.description || '').slice(0, 170)}${(item.description || '').length > 170 ? '...' : ''}</p>
+      <p>Price: <strong>${escapeHtml(item.price || 'Not set')}</strong></p>
       <p>Status: <strong>${escapeHtml(item.status || 'Available')}</strong></p>
       <div class="admin-actions">
+        <button class="copy-id-btn" data-id="${item.id}">Copy ID</button>
+        <button class="copy-link-btn" data-id="${item.id}">Copy Link</button>
+        <button class="edit-property-btn" data-id="${item.id}">Edit</button>
         <button class="toggle-status-btn" data-id="${item.id}" data-status="${escapeHtml(item.status || 'Available')}">
           Mark as ${item.status === 'Sold' ? 'Available' : 'Sold'}
         </button>
@@ -305,6 +377,19 @@ async function loadProperties() {
 }
 
 document.getElementById('properties-container').addEventListener('click', async (e) => {
+  if (e.target.classList.contains('copy-id-btn')) {
+    await copyText(e.target.dataset.id);
+    e.target.textContent = 'Copied';
+    window.setTimeout(() => (e.target.textContent = 'Copy ID'), 1200);
+  }
+  if (e.target.classList.contains('copy-link-btn')) {
+    await copyText(listingUrl(e.target.dataset.id));
+    e.target.textContent = 'Copied';
+    window.setTimeout(() => (e.target.textContent = 'Copy Link'), 1200);
+  }
+  if (e.target.classList.contains('edit-property-btn')) {
+    openEditModal(e.target.dataset.id);
+  }
   if (e.target.classList.contains('toggle-status-btn')) {
     await toggleStatus(e.target.dataset.id, e.target.dataset.status);
   }
@@ -312,6 +397,136 @@ document.getElementById('properties-container').addEventListener('click', async 
     await deleteProperty(e.target.dataset.id);
   }
 });
+
+document.querySelectorAll('[data-inventory-filter]').forEach((button) => {
+  button.addEventListener('click', () => {
+    inventoryFilter = button.dataset.inventoryFilter;
+    document.querySelectorAll('[data-inventory-filter]').forEach((item) => item.classList.remove('is-active'));
+    button.classList.add('is-active');
+    renderInventory();
+  });
+});
+
+if (inventorySearch) {
+  inventorySearch.addEventListener('input', (event) => {
+    inventoryQuery = event.target.value;
+    renderInventory();
+  });
+}
+
+if (clearInventorySearch) {
+  clearInventorySearch.addEventListener('click', () => {
+    inventoryQuery = '';
+    if (inventorySearch) inventorySearch.value = '';
+    renderInventory();
+  });
+}
+
+if (closeEditModal && editListingModal) {
+  closeEditModal.addEventListener('click', () => {
+    editListingModal.style.display = 'none';
+  });
+}
+
+if (editListingModal) {
+  editListingModal.addEventListener('click', (event) => {
+    if (event.target === editListingModal) editListingModal.style.display = 'none';
+  });
+}
+
+function openEditModal(id) {
+  const item = allInventory.find((entry) => entry.id === id);
+  if (!item || !editListingModal) return;
+
+  document.getElementById('editId').value = item.id;
+  document.getElementById('editListingType').value = listingType(item);
+  document.getElementById('editTitle').value = item.title || '';
+  document.getElementById('editLocation').value = item.location || '';
+  document.getElementById('editCategory').value = item.category || '';
+  document.getElementById('editSize').value = item.size || '';
+  document.getElementById('editBedrooms').value = item.bedrooms ?? '';
+  document.getElementById('editBathrooms').value = item.bathrooms ?? '';
+  document.getElementById('editDescription').value = item.description || '';
+  document.getElementById('editPrice').value = item.price || '';
+  document.getElementById('editStatus').value = item.status === 'Sold' ? 'Sold' : 'Available';
+  document.getElementById('editMediaMode').value = 'keep';
+  document.getElementById('editMedia').value = '';
+  if (editMessage) editMessage.style.display = 'none';
+  editListingModal.style.display = 'flex';
+}
+
+if (editListingForm) {
+  editListingForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const submitBtn = editListingForm.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Saving...';
+
+    const listing_type = document.getElementById('editListingType').value;
+    const bedroomsRaw = document.getElementById('editBedrooms').value;
+    const bathroomsRaw = document.getElementById('editBathrooms').value;
+    const payload = {
+      listing_type,
+      title: document.getElementById('editTitle').value.trim(),
+      location: document.getElementById('editLocation').value.trim(),
+      category: document.getElementById('editCategory').value.trim(),
+      size: document.getElementById('editSize').value.trim(),
+      bedrooms: listing_type === 'land' ? null : (bedroomsRaw ? Number(bedroomsRaw) : null),
+      bathrooms: listing_type === 'land' ? null : (bathroomsRaw ? Number(bathroomsRaw) : null),
+      description: document.getElementById('editDescription').value.trim(),
+      price: document.getElementById('editPrice').value.trim(),
+      status: document.getElementById('editStatus').value,
+    };
+
+    const id = document.getElementById('editId').value;
+    const currentItem = allInventory.find((entry) => entry.id === id);
+    const mediaMode = document.getElementById('editMediaMode').value;
+    const files = document.getElementById('editMedia').files;
+
+    if (files.length > 0 && mediaMode !== 'keep') {
+      try {
+        const uploaded = await uploadMediaFiles(files, submitBtn, 'Save Changes');
+        if (mediaMode === 'replace') {
+          payload.media = uploaded.media;
+          payload.images = uploaded.imageUrls;
+        } else {
+          const existingMedia = Array.isArray(currentItem?.media) ? currentItem.media : [];
+          const existingImages = Array.isArray(currentItem?.images) ? currentItem.images : [];
+          payload.media = [...existingMedia, ...uploaded.media];
+          payload.images = [...existingImages, ...uploaded.imageUrls];
+        }
+      } catch (error) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Save Changes';
+        if (editMessage) {
+          editMessage.textContent = error.message;
+          editMessage.style.display = 'block';
+        }
+        return;
+      }
+    }
+
+    const { error } = await supabase
+      .from('properties')
+      .update(payload)
+      .eq('id', id);
+
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Save Changes';
+
+    if (error) {
+      console.error(error);
+      if (editMessage) {
+        editMessage.textContent = 'Failed to save changes.';
+        editMessage.style.display = 'block';
+      }
+      return;
+    }
+
+    editListingModal.style.display = 'none';
+    loadProperties();
+  });
+}
 
 async function toggleStatus(id, currentStatus) {
   const newStatus = currentStatus === 'Sold' ? 'Available' : 'Sold';

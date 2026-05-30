@@ -214,6 +214,7 @@ select {
 #admin-login-form button,
 #propertyForm button,
 #landForm button,
+#editListingForm button,
 #promoForm button,
 .admin-property-card button,
 .promo-card button,
@@ -241,6 +242,7 @@ select {
 #admin-login-form button:hover,
 #propertyForm button:hover,
 #landForm button:hover,
+#editListingForm button:hover,
 #promoForm button:hover,
 .admin-property-card button:hover,
 .promo-card button:hover,
@@ -562,6 +564,29 @@ select {
   line-height: 1.2;
 }
 
+.public-listing-id,
+.listing-id-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  margin: 10px 0;
+}
+
+.public-listing-id button,
+.listing-id-row button {
+  flex: 0 0 auto;
+  min-height: 32px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 999px;
+  color: #111;
+  background: var(--brand-2);
+  font-size: 0.78rem;
+  font-weight: 900;
+  cursor: pointer;
+}
+
 .property-price {
   margin: 10px 0 12px;
   color: var(--brand);
@@ -816,6 +841,7 @@ select {
 #admin-login-form,
 #propertyForm,
 #landForm,
+#editListingForm,
 #promoForm {
   display: grid;
   gap: 12px;
@@ -828,6 +854,9 @@ select {
 #landForm input,
 #landForm select,
 #landForm textarea,
+#editListingForm input,
+#editListingForm select,
+#editListingForm textarea,
 #promoForm input {
   width: 100%;
   min-height: 46px;
@@ -844,7 +873,8 @@ select {
 }
 
 #propertyForm textarea,
-#landForm textarea {
+#landForm textarea,
+#editListingForm textarea {
   min-height: 130px;
   resize: vertical;
 }
@@ -1103,16 +1133,28 @@ select {
 
 .admin-stats {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   gap: 12px;
   margin-bottom: 22px;
 }
 
 .admin-stat {
+  width: 100%;
   padding: 18px;
+  text-align: left;
   background: #111;
   color: #fff;
+  border: 1px solid transparent;
   border-radius: var(--radius);
+  cursor: pointer;
+  transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.admin-stat:hover,
+.admin-stat.is-active {
+  border-color: var(--brand-2);
+  box-shadow: 0 14px 34px rgba(17, 17, 17, 0.14);
+  transform: translateY(-1px);
 }
 
 .admin-stat strong {
@@ -1147,6 +1189,31 @@ select {
   margin: 0 0 16px;
 }
 
+.inventory-tools {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.inventory-tools input,
+.inventory-tools button {
+  min-height: 44px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #fff;
+}
+
+.inventory-tools input {
+  padding: 0 14px;
+}
+
+.inventory-tools button {
+  padding: 0 16px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
 .properties-list {
   display: grid;
   gap: 12px;
@@ -1157,6 +1224,24 @@ select {
   background: #fff;
   border: 1px solid var(--line);
   border-radius: var(--radius);
+}
+
+.admin-card-head {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.admin-card-head span {
+  width: fit-content;
+  max-width: 100%;
+  padding: 5px 8px;
+  overflow-wrap: anywhere;
+  color: var(--muted);
+  background: #f5f2ec;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 800;
 }
 
 .admin-property-card h3,
@@ -1185,6 +1270,18 @@ select {
 .delete-promo-btn {
   color: #fff !important;
   background: var(--danger) !important;
+}
+
+.admin-edit-modal {
+  width: min(620px, 100%);
+  max-height: min(90vh, 820px);
+  overflow: auto;
+}
+
+.form-note {
+  margin: 0;
+  color: var(--danger);
+  font-size: 0.92rem;
 }
 
 .promo-card {
