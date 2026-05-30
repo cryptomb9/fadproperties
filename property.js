@@ -85,7 +85,8 @@ async function loadProperty() {
     buyBtn.disabled = true;
   } else {
     buyBtn.onclick = () => {
-      const msg = encodeURIComponent(`Hello FAD HOMES AND PROPERTY, I am interested in this ${isLand ? 'land' : 'property'}: ${title}`);
+      const listingUrl = `${window.location.origin}/property?id=${encodeURIComponent(id)}`;
+      const msg = encodeURIComponent(`Hello FAD HOMES AND PROPERTY, I am interested in this ${isLand ? 'land' : 'property'}: ${title}\n${listingUrl}`);
       window.open(`https://wa.me/2348145324251?text=${msg}`, '_blank');
     };
   }

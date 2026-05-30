@@ -993,7 +993,10 @@ select {
 }
 
 .swiper-container {
+  position: relative;
   width: 100%;
+  padding-bottom: 38px;
+  background: #111;
 }
 
 .swiper-slide img,
@@ -1001,6 +1004,19 @@ select {
   width: 100%;
   height: min(68vh, 620px);
   object-fit: cover;
+}
+
+.gallery-panel .swiper-pagination {
+  bottom: 10px !important;
+}
+
+.gallery-panel .swiper-pagination-bullet {
+  background: rgba(255, 255, 255, 0.72);
+  opacity: 1;
+}
+
+.gallery-panel .swiper-pagination-bullet-active {
+  background: var(--brand-2);
 }
 
 .detail-card {

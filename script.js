@@ -192,14 +192,29 @@ async function loadListings() {
   const listings = document.getElementById('listings');
   if (!listings) return;
 
-  const { data, error } = await supabase
-    .from('properties')
-    .select('*')
-    .order('created_at', { ascending: false });
+  let response;
+  try {
+    response = await Promise.race([
+      supabase
+        .from('properties')
+        .select('*')
+        .order('created_at', { ascending: false }),
+      new Promise((resolve) => {
+        window.setTimeout(() => resolve({
+          data: null,
+          error: { message: 'Connection timed out while loading properties.' },
+        }), 12000);
+      }),
+    ]);
+  } catch (error) {
+    response = { data: null, error };
+  }
+
+  const { data, error } = response;
 
   if (error || !data) {
     console.error('Error loading listings:', error);
-    listings.innerHTML = '<div class="empty-state">Error loading properties. Please try again.</div>';
+    listings.innerHTML = '<div class="empty-state">Could not load listings right now. Please refresh or try again shortly.</div>';
     updateCount(0);
     return;
   }
