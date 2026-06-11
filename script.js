@@ -3,14 +3,18 @@ import { SUPABASE_ANON_KEY, SUPABASE_URL } from './supabase-config.js';
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=900&q=85";
-const FALLBACK_LAND_IMAGE = "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=900&q=85";
+const FALLBACK_IMAGE = "images/fad-showcase-house.jpeg";
+const FALLBACK_LAND_IMAGE = "images/land-hero-nigeria-optimized.jpg";
 const PAGE_TYPE = document.body.dataset.page || "home";
 const IS_PROPERTIES_PAGE = PAGE_TYPE === "properties";
 const IS_LANDS_PAGE = PAGE_TYPE === "lands";
-const HOME_LISTING_LIMIT = 6;
+const HOME_PROPERTY_LIMIT = 2;
+const HOME_LAND_LIMIT = 1;
+const LISTING_CACHE_KEY = `fad-listings-${PAGE_TYPE}`;
+const LISTING_CACHE_TTL = 10 * 60 * 1000;
 
 let allProperties = [];
+let showcaseTimer = null;
 
 function escapeHtml(value) {
   return String(value ?? "")
@@ -122,9 +126,31 @@ function applyFilters() {
   renderListings(filtered);
 }
 
+function readCachedListings() {
+  try {
+    const cached = JSON.parse(localStorage.getItem(LISTING_CACHE_KEY) || "null");
+    if (!cached || !Array.isArray(cached.data) || Date.now() - cached.savedAt > LISTING_CACHE_TTL) return null;
+    return cached.data;
+  } catch {
+    return null;
+  }
+}
+
+function writeCachedListings(data) {
+  try {
+    localStorage.setItem(LISTING_CACHE_KEY, JSON.stringify({ savedAt: Date.now(), data }));
+  } catch {
+    // Storage can fail in private browsing; the live database load still works.
+  }
+}
+
 function renderShowcase(properties = []) {
   const track = document.getElementById("workShowcaseTrack");
   if (!track) return;
+  if (showcaseTimer) {
+    window.clearInterval(showcaseTimer);
+    showcaseTimer = null;
+  }
 
   const propertySlides = properties
     .filter((item) => getPropertyMedia(item).some((media) => media.type === "image"))
@@ -142,12 +168,12 @@ function renderShowcase(properties = []) {
       text: "A finished contemporary home built for the kind of lifestyle and quality FAD HOMES AND PROPERTY represents.",
     },
     {
-      image: "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=1200&q=85",
+      image: "images/fad-sales-rentals.jpeg",
       title: "Development support",
       text: "Property build support for clients moving from land to finished structure.",
     },
     {
-      image: "https://images.unsplash.com/photo-1600607688969-a5bfcd646154?auto=format&fit=crop&w=1200&q=85",
+      image: "images/land-hero-nigeria-optimized.jpg",
       title: "Modern spaces",
       text: "Spaces presented with the clarity buyers and tenants expect.",
     },
@@ -168,7 +194,7 @@ function renderShowcase(properties = []) {
   let active = 0;
   const items = [...track.querySelectorAll(".work-slide")];
   if (items.length <= 1) return;
-  window.setInterval(() => {
+  showcaseTimer = window.setInterval(() => {
     items[active].classList.remove("is-active");
     active = (active + 1) % items.length;
     items[active].classList.add("is-active");
@@ -206,6 +232,15 @@ async function loadListings() {
   const listings = document.getElementById('listings');
   if (!listings) return;
 
+  const cachedListings = readCachedListings();
+  let renderedFromCache = false;
+  if (cachedListings) {
+    allProperties = cachedListings;
+    applyFilters();
+    renderShowcase(cachedListings.filter((item) => listingType(item) !== "land"));
+    renderedFromCache = true;
+  }
+
   let response;
   try {
     response = await Promise.race([
@@ -228,8 +263,10 @@ async function loadListings() {
 
   if (error || !data) {
     console.error('Error loading listings:', error);
-    listings.innerHTML = '<div class="empty-state">Could not load listings right now. Please refresh or try again shortly.</div>';
-    updateCount(0);
+    if (!renderedFromCache) {
+      listings.innerHTML = '<div class="empty-state">Could not load listings right now. Please refresh or try again shortly.</div>';
+      updateCount(0);
+    }
     return;
   }
 
@@ -240,6 +277,7 @@ async function loadListings() {
   });
 
   allProperties = data;
+  writeCachedListings(data);
   applyFilters();
   renderShowcase(data.filter((item) => listingType(item) !== "land"));
 }
@@ -248,8 +286,14 @@ function renderListings(list) {
   const listings = document.getElementById('listings');
   if (!listings) return;
 
-  const displayList = (IS_PROPERTIES_PAGE || IS_LANDS_PAGE) ? list : (list || []).slice(0, HOME_LISTING_LIMIT);
-  updateCount((IS_PROPERTIES_PAGE || IS_LANDS_PAGE) ? (list?.length || 0) : Math.min(list?.length || 0, HOME_LISTING_LIMIT));
+  const homeList = IS_PROPERTIES_PAGE || IS_LANDS_PAGE
+    ? list
+    : [
+        ...(list || []).filter((item) => listingType(item) !== "land").slice(0, HOME_PROPERTY_LIMIT),
+        ...(list || []).filter((item) => listingType(item) === "land").slice(0, HOME_LAND_LIMIT),
+      ];
+  const displayList = homeList;
+  updateCount((IS_PROPERTIES_PAGE || IS_LANDS_PAGE) ? (list?.length || 0) : displayList.length);
 
   if (!displayList || displayList.length === 0) {
     listings.innerHTML = '<div class="empty-state">No matching properties available right now.</div>';
@@ -257,7 +301,7 @@ function renderListings(list) {
   }
 
   listings.innerHTML = displayList
-    .map((item) => {
+    .map((item, index) => {
       const media = getPropertyMedia(item);
       const isLand = listingType(item) === "land";
       const firstMedia = media[0] || { url: isLand ? FALLBACK_LAND_IMAGE : FALLBACK_IMAGE, type: "image" };
@@ -268,13 +312,15 @@ function renderListings(list) {
         isLand && item.size ? item.size : "",
         !isLand && item.bedrooms ? `${item.bedrooms} bed` : "",
       ].filter(Boolean).join(" / ");
+      const imageLoading = (IS_PROPERTIES_PAGE || IS_LANDS_PAGE || index < 3) ? "eager" : "lazy";
+      const fetchPriority = index === 0 ? ' fetchpriority="high"' : "";
 
       return `
         <article class="property-card">
           <div class="property-card-media">
             ${firstMedia.type === "video"
               ? `<video src="${escapeHtml(firstMedia.url)}" muted playsinline preload="metadata"></video><span class="media-chip">Video</span>`
-              : `<img src="${escapeHtml(firstMedia.url)}" alt="${escapeHtml(item.title || 'Property image')}" loading="lazy" onerror="this.src='${isLand ? FALLBACK_LAND_IMAGE : FALLBACK_IMAGE}'">`
+              : `<img src="${escapeHtml(firstMedia.url)}" alt="${escapeHtml(item.title || 'Property image')}" loading="${imageLoading}" decoding="async"${fetchPriority} onerror="this.src='${isLand ? FALLBACK_LAND_IMAGE : FALLBACK_IMAGE}'">`
             }
             <span class="property-status">${status}</span>
           </div>
@@ -291,7 +337,7 @@ function renderListings(list) {
         </article>
       `;
     })
-    .join('') + (!(IS_PROPERTIES_PAGE || IS_LANDS_PAGE) && list.length > HOME_LISTING_LIMIT
+    .join('') + (!(IS_PROPERTIES_PAGE || IS_LANDS_PAGE) && list.length > displayList.length
       ? `<div class="listing-more"><a href="/properties">View Properties</a><a href="/lands">View Land</a></div>`
       : '');
 }
@@ -400,4 +446,4 @@ if (loginForm) {
 
 loadListings();
 renderShowcase();
-if (document.getElementById('listings')) loadPromoPopup();
+if (PAGE_TYPE === "home" && document.getElementById('listings')) loadPromoPopup();

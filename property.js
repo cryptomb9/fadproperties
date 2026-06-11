@@ -3,8 +3,8 @@ import { SUPABASE_ANON_KEY, SUPABASE_URL } from './supabase-config.js';
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=1400&q=85";
-const FALLBACK_LAND_IMAGE = "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1400&q=85";
+const FALLBACK_IMAGE = "images/fad-showcase-house.jpeg";
+const FALLBACK_LAND_IMAGE = "images/land-hero-nigeria-optimized.jpg";
 
 function escapeHtml(value) {
   return String(value ?? "")
@@ -119,7 +119,7 @@ async function loadProperty() {
     <div class="swiper-slide">
       ${item.type === "video"
         ? `<video src="${escapeHtml(item.url)}" controls playsinline preload="metadata"></video>`
-        : `<img src="${escapeHtml(item.url)}" alt="${escapeHtml(title)}" onerror="this.src='${fallbackImage}'"/>`
+        : `<img src="${escapeHtml(item.url)}" alt="${escapeHtml(title)}" loading="eager" decoding="async" fetchpriority="high" onerror="this.src='${fallbackImage}'"/>`
       }
     </div>
   `).join('');
